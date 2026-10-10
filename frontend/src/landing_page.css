@@ -8,7 +8,6 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Remove default Vite/React wrapper spacing so the page uses the full screen */
 html,
 body,
 #root {
@@ -25,7 +24,6 @@ body {
   color: #333;
 }
 
-/* Page fills exactly one screen. Header and footer run edge to edge. */
 .landing_page {
   display: flex;
   flex-direction: column;
@@ -42,7 +40,7 @@ body {
 .header {
   position: sticky;
   top: 0;
-  z-index: 10; /* keeps the dropdown above the hero and sidebar */
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -195,7 +193,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  flex: 1; /* each button grows to share the leftover height */
+  flex: 1;
   width: 100%;
   min-height: 32px;
   border: none;
@@ -207,7 +205,6 @@ body {
   cursor: pointer;
 }
 
-/* Icon sits on the left edge of the button, text stays centered */
 .B2 button img {
   position: absolute;
   top: 50%;
@@ -307,7 +304,7 @@ body {
 }
 
 .social_group br {
-  display: none; /* keeps "Follow us on: Facebook" on one line */
+  display: none;
 }
 
 .footer textarea {
