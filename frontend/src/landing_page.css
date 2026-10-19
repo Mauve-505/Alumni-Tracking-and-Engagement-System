@@ -1,0 +1,373 @@
+/* ==========================================================
+   BASE
+   ========================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html,
+body,
+#root {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #a82322;
+  color: #333;
+}
+
+.landing_page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  background-color: #a82322;
+  overflow: hidden;
+}
+
+/* ==========================================================
+   HEADER
+   ========================================================== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  width: 100%;
+  padding: 6px 24px;
+  background-color: #ffffff;
+}
+
+.header img {
+  height: 40px;
+  width: auto;
+}
+
+.header p {
+  margin-right: auto;
+  font-size: 24px;
+  font-weight: 700;
+  color: #c93b33;
+}
+
+.header button {
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+}
+
+.header button:hover {
+  color: #c93b33;
+}
+
+/* Menu button + dropdown */
+.menu_wrap {
+  position: relative;
+}
+
+.header .menu_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #e53935;
+}
+
+.header .menu_button img {
+  height: 20px;
+  width: 20px;
+  filter: brightness(0) invert(1);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  min-width: 160px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.dropdown a {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333;
+  text-decoration: none;
+}
+
+.dropdown a:hover {
+  background: #f7c3c2;
+  color: #c93b33;
+}
+
+/* ==========================================================
+   MAIN BODY: takes all the space between header and footer
+   ========================================================== */
+.body {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  padding: 12px;
+}
+
+/* Left hero banner (B1) */
+.B1 {
+  flex: 2;
+  display: flex;
+  align-items: flex-end;
+  min-height: 0;
+  padding: 20px 28px;
+  border-radius: 20px;
+  text-align: left;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)),
+    url('./assets/wmsu_school_picture.jpg');
+  background-size: cover;
+  background-position: center;
+}
+
+.B1 p {
+  font-size: clamp(1.5rem, 4vh, 2.5rem);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+}
+
+/* Right sidebar card (B2): buttons stretch to fill the box */
+.B2 {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  padding: 16px 20px;
+  overflow: hidden;
+  border-radius: 20px;
+  background-color: #ffffff;
+  text-align: left;
+}
+
+.B2 p.B2_title {
+  flex-shrink: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #c93b33;
+}
+
+.B2 p.B2_text {
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #666;
+}
+
+.B2 button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  width: 100%;
+  min-height: 32px;
+  border: none;
+  border-radius: 25px;
+  font-size: clamp(16px, 3vh, 24px);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.B2 button img {
+  position: absolute;
+  top: 50%;
+  left: 24px;
+  height: 65%;
+  width: auto;
+  transform: translateY(-50%);
+}
+
+.login_signup {
+  background-color: #032b5b;
+  color: #ffffff;
+}
+
+/* Colored category buttons */
+.B2 button:nth-of-type(1) { background-color: #f7c3c2; }
+.B2 button:nth-of-type(2) { background-color: #b3d9ff; }
+.B2 button:nth-of-type(3) { background-color: #dbe8b8; }
+.B2 button:nth-of-type(4) { background-color: #6b6be8; }
+
+.B2 button:nth-of-type(1):hover { background-color: #f8a3a1; }
+.B2 button:nth-of-type(2):hover { background-color: #8dc6fe; }
+.B2 button:nth-of-type(3):hover { background-color: #bfd680; }
+.B2 button:nth-of-type(4):hover { background-color: #6767f5; }
+/* ==========================================================
+   FOOTER (compact)
+   ========================================================== */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-shrink: 0;
+  padding: 12px 48px;
+  background-color: #032b5b;
+  font-size: 12px;
+  color: #ffffff;
+  text-align: left;
+}
+
+.footer a {
+  color: #66b2ff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* Left side: copyright, message, phone */
+.F1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.F1 p {
+  line-height: 1.25;
+  color: #e0e0e0;
+}
+
+/* Right side: feedback row on top, "Follow us on" under the textarea */
+.F2 {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 4px;
+}
+
+.question_group {
+  display: contents; /* label and textarea sit directly in the .F2 grid */
+}
+
+.question_group label {
+  grid-column: 1;
+  grid-row: 1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.input_container {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.social_group {
+  grid-column: 2;
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.social_group br {
+  display: none;
+}
+
+.footer textarea {
+  width: 200px;
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 12px;
+  color: #333;
+  resize: none;
+}
+
+.footer button {
+  padding: 6px 14px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.footer button:hover {
+  background-color: #0056b3;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+@media (max-width: 900px) {
+  .landing_page {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .body {
+    flex-direction: column;
+  }
+
+  .B1 {
+    min-height: 260px;
+  }
+
+  .B2 button {
+    min-height: 48px;
+  }
+
+  .footer,
+  .F2 {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .question_group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
