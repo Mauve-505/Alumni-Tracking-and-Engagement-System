@@ -1,0 +1,300 @@
+/* ==========================================================
+   BASE (same as landing page)
+   ========================================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+html,
+body,
+#root {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  color: #333;
+}
+
+.App {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: auto;
+  background-color: #a82322;
+}
+
+/* ==========================================================
+   HEADER (same as landing page)
+   ========================================================== */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  width: 100%;
+  padding: 6px 24px;
+  background-color: #ffffff;
+}
+
+.header img {
+  height: 40px;
+  width: auto;
+}
+
+.header p {
+  margin-right: auto;
+  font-size: 24px;
+  font-weight: 700;
+  color: #c93b33;
+}
+
+.header button {
+  padding: 6px 16px;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+}
+
+.header button:hover {
+  color: #c93b33;
+}
+
+/* ==========================================================
+   REGISTER CARD (styled like the landing page's white cards)
+   ========================================================== */
+.register {
+  width: calc(100% - 24px);
+  max-width: 720px;
+  margin: auto; /* centers the card between header and footer */
+  padding: 28px 32px;
+  border-radius: 20px;
+  background-color: #ffffff;
+  text-align: left;
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #c93b33;
+  }
+
+  /* intro text under the title */
+  > p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 20px;
+    color: #666;
+  }
+
+  /* ----- Form ----- */
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* fields that share a row */
+  .name-row,
+  .account-row,
+  .password-row {
+    display: grid;
+    gap: 14px;
+  }
+
+  /* first name | tiny middle initial (2 letters max) | last name */
+  .name-row {
+    grid-template-columns: 1fr 64px 1fr;
+  }
+
+  .initial input {
+    padding-inline: 0;
+    text-align: center;
+  }
+
+  /* username | email  and  password | confirm password */
+  .account-row,
+  .password-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #333;
+  }
+
+  input,
+  select {
+    width: 100%;
+    min-width: 0;
+    padding: 11px 14px;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: #333;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &::placeholder {
+      color: #999;
+    }
+
+    &:focus {
+      border-color: #c93b33;
+      box-shadow: 0 0 0 3px rgba(201, 59, 51, 0.2);
+    }
+
+    /* red border only after the user has typed something invalid */
+    &:invalid:not(:placeholder-shown) {
+      border-color: #e53935;
+    }
+  }
+
+  /* ----- Show/Hide password toggle (sits inside the input) ----- */
+  .input-wrap {
+    position: relative;
+
+    input {
+      padding-right: 64px;
+    }
+  }
+
+  .toggle-btn {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    padding: 4px 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #c93b33;
+    background: none;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* ----- Country code + phone number ----- */
+  .phone-row {
+    display: flex;
+    gap: 10px;
+
+    select {
+      flex: none;
+      width: 120px;
+      cursor: pointer;
+    }
+
+    input {
+      flex: 1;
+    }
+  }
+
+  /* ----- Register (submit) button: navy pill like the landing page ----- */
+  button[type="submit"] {
+    margin-top: 6px;
+    padding: 12px 14px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    color: #ffffff;
+    background-color: #032b5b;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: #021f42;
+    }
+  }
+}
+
+/* ==========================================================
+   FOOTER (same as landing page)
+   ========================================================== */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-shrink: 0;
+  padding: 12px 48px;
+  background-color: #032b5b;
+  font-size: 12px;
+  color: #ffffff;
+  text-align: left;
+}
+
+.footer a {
+  color: #66b2ff;
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+.F1 {
+  display: flex;
+  flex-direction: column;
+}
+
+.F1 p {
+  line-height: 1.25;
+  color: #e0e0e0;
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+@media (max-width: 900px) {
+  .App {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+
+@media (max-width: 480px) {
+  .register {
+    padding: 22px 18px;
+
+    .name-row,
+    .account-row,
+    .password-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px 20px;
+  }
+}
