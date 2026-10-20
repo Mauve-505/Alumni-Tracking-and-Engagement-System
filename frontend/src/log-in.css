@@ -1,0 +1,557 @@
+/* ==========================================================
+   VARIABLES & BASE
+   ========================================================== */
+:root {
+  --red: #c93b33;
+  --red-dark: #8f1f1a;
+  --page-red: #a82322;
+  --blue: #6b6be8;
+  --blue-dark: #4f4fd6;
+  --navy: #032b5b;
+  --gray: #7b7b7b;
+  --text: #333;
+  --muted: #666;
+  --border: #ccc;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Also overrides Vite's default centered #root / flex body */
+html,
+body,
+#root {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--page-red);
+  color: var(--text);
+}
+
+.log-in_page {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  background-color: var(--page-red);
+  overflow: hidden;
+
+  /* ==========================================================
+     HEADER
+     ========================================================== */
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    width: 100%;
+    padding: 6px 24px;
+    background-color: #fff;
+
+    & img {
+      height: 40px;
+      width: auto;
+    }
+
+    & p {
+      margin-right: auto;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--red);
+    }
+  }
+
+  /* Menu button + dropdown */
+  .menu_wrap {
+    position: relative;
+  }
+
+  .menu_button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: #e53935;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    &:hover {
+      background-color: #b71c1c;
+    }
+
+    & img {
+      height: 20px;
+      width: 20px;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    min-width: 160px;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+
+    & a {
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+
+      &:hover {
+        background: #f7c3c2;
+        color: var(--red);
+      }
+    }
+  }
+
+  /* ==========================================================
+     LOG-IN CARD
+     ========================================================== */
+  .body {
+    position: relative;
+    flex: 1;
+    display: grid;
+    grid-template-columns: 50% minmax(0, 1fr) auto auto minmax(0, 1fr);
+    align-content: safe center;
+    align-items: center;
+    row-gap: 8px;
+    column-gap: 6px;
+    min-height: 0;
+    margin: 12px;
+    padding: 16px 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border-radius: 20px;
+    background-color: #fff;
+
+    /* The form's children sit directly in the grid */
+    & form {
+      display: contents;
+    }
+
+    & > :not(.banner),
+    & form > * {
+      grid-column: 2 / -1;
+      justify-self: center;
+    }
+
+    & p,
+    & input,
+    & button {
+      width: calc(100% - 48px);
+      max-width: 420px;
+    }
+
+    /* Heading: "Enter Log-in credentials" */
+    & p:nth-of-type(1) {
+      margin-bottom: 8px;
+      text-align: center;
+      font-size: clamp(22px, 4vh, 34px);
+      font-weight: 800;
+      color: var(--red);
+    }
+
+    /* Field labels: "Username/ID number:" and "Password:" */
+    & p:nth-of-type(2),
+    & p:nth-of-type(3) {
+      margin-top: 4px;
+      text-align: left;
+      font-size: 14px;
+      font-weight: 600;
+      color: #444;
+    }
+
+    /* "Don't have an account yet?" */
+    & p:nth-of-type(4) {
+      grid-column: 3;
+      width: auto;
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    & input {
+      height: 44px;
+      padding: 0 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background-color: #fff;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+
+      &:focus {
+        border-color: var(--red);
+        box-shadow: 0 0 0 3px rgba(201, 59, 51, 0.2);
+      }
+
+      /* Required field left empty or filled in wrong */
+      &:user-invalid {
+        border-color: var(--red);
+      }
+    }
+
+    & button {
+      height: 44px;
+      border: none;
+      border-radius: 25px;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Text-style buttons (shared reset) */
+    & :is(.signup_button, .system_menu) {
+      width: auto;
+      height: auto;
+      padding: 0;
+      border-radius: 0;
+      background: none;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+      white-space: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    & .signup_button {
+      grid-column: 4;
+      grid-row: 7;
+      justify-self: start;
+      align-self: center;
+      margin: 0;
+      color: var(--red);
+
+      &:hover {
+        color: var(--red-dark);
+      }
+    }
+
+    & .system_menu {
+      grid-column: 2 / -1;
+      grid-row: 8;
+      justify-self: center;
+      margin-top: 16px;
+      color: var(--gray);
+    }
+  }
+
+  .banner {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+
+    & img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+  }
+
+  .login_button {
+    margin-top: 8px;
+    background-color: var(--blue);
+
+    &:hover {
+      background-color: var(--blue-dark);
+    }
+  }
+
+  /* ==========================================================
+     FOOTER
+     ========================================================== */
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-shrink: 0;
+    padding: 12px 48px;
+    background-color: var(--navy);
+    font-size: 12px;
+    color: #fff;
+    text-align: left;
+
+    & a {
+      color: #66b2ff;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    & textarea {
+      width: 200px;
+      height: 32px;
+      min-height: 32px;
+      max-height: 32px;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background-color: #fff;
+      font-size: 12px;
+      color: var(--text);
+      resize: none;
+    }
+
+    & button {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007bff;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+    }
+  }
+
+  .F1 {
+    display: flex;
+    flex-direction: column;
+
+    & p {
+      line-height: 1.25;
+      color: #e0e0e0;
+    }
+  }
+
+  .F2 {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+    column-gap: 8px;
+    row-gap: 4px;
+  }
+
+  .question_group {
+    display: contents;
+
+    & label {
+      grid-column: 1;
+      grid-row: 1;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  }
+
+  .input_container {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .social_group {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+
+    & br {
+      display: none;
+    }
+  }
+
+  /* ==========================================================
+     ROLE POPUP (Admin / User)
+     ========================================================== */
+  .modal_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .modal_card {
+    width: 100%;
+    max-width: 360px;
+    padding: 28px 24px 20px;
+    border-radius: 20px;
+    background: #fff;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+
+    & h2 {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--red);
+    }
+
+    & p {
+      margin-top: 6px;
+      font-size: 14px;
+      color: var(--muted);
+    }
+  }
+
+  .modal_actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .modal_btn {
+    flex: 1;
+    height: 44px;
+    border: none;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .modal_admin {
+    background-color: var(--red);
+
+    &:hover {
+      background-color: var(--red-dark);
+    }
+  }
+
+  .modal_user {
+    background-color: var(--blue);
+
+    &:hover {
+      background-color: var(--blue-dark);
+    }
+  }
+
+  .modal_cancel {
+    margin-top: 14px;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    font-size: 13px;
+    color: var(--gray);
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* ==========================================================
+   RESPONSIVE
+   ========================================================== */
+@media (max-width: 900px) {
+  .log-in_page {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+
+    .body {
+      grid-template-columns: minmax(0, 1fr) auto auto minmax(0, 1fr);
+      overflow-y: visible;
+
+      & > :not(.banner),
+      & form > * {
+        grid-column: 1 / -1;
+      }
+
+      & p:nth-of-type(4) {
+        grid-column: 2;
+      }
+
+      & .signup_button {
+        grid-column: 3;
+      }
+    }
+
+    .banner {
+      position: static;
+      grid-column: 1 / -1;
+      width: 100%;
+      height: 160px;
+      margin-bottom: 8px;
+    }
+
+    .footer,
+    .F2 {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .question_group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .log-in_page {
+    .header {
+      padding: 6px 16px;
+    }
+
+    .body {
+      margin: 8px;
+    }
+
+    .footer {
+      padding: 12px 20px;
+
+      & textarea {
+        width: 160px;
+      }
+    }
+  }
+}
