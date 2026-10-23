@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import './register.css'
+
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import './register.css';
 
 const COUNTRY_CODES = [
   { code: '+63', label: 'PH +63' },
@@ -16,24 +18,113 @@ const COUNTRY_CODES = [
   { code: '+86', label: 'CN +86' },
   { code: '+852', label: 'HK +852' },
   { code: '+91', label: 'IN +91' },
-]
+];
+
+const API_URL =
+  import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+async function registerUser({
+  email,
+  password,
+  first_name,
+  last_name,
+}) {
+  const response = await fetch(`${API_URL}/api/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email,
+      password,
+      first_name,
+      last_name,
+    }),
+  });
+
+  let result;
+
+  try {
+    result = await response.json();
+  } catch {
+    throw new Error('The server returned an invalid response.');
+  }
+
+  if (!response.ok) {
+    throw new Error(result.error || 'Registration failed.');
+  }
+
+  return result.data;
+}
 
 function App() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [countryCode, setCountryCode] = useState('+63')
+  const navigate = useNavigate();
 
-  const isPH = countryCode === '+63'
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [countryCode, setCountryCode] = useState('+63');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    middleInitial: '',
+    lastName: '',
+    username: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const isPH = countryCode === '+63';
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (isSubmitting) return;
+
+    if (formData.password !== formData.confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await registerUser({
+        email: formData.email.trim(),
+        password: formData.password,
+        first_name: formData.firstName.trim(),
+        last_name: formData.lastName.trim(),
+      });
+
+      alert('Registration successful! You can now log in.');
+      navigate('/login');
+    } catch (err) {
+      alert(err.message || 'Registration failed.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="App">
-
-        {/* navbar here */}
+      {/* Navbar here */}
 
       <div className="register">
         <h2>Register</h2>
         <p>Please fill in the form below to create an account.</p>
-        <form>
+
+        <form onSubmit={handleSubmit}>
           <div className="name-row">
             <label>
               First name
@@ -47,9 +138,12 @@ function App() {
                 maxLength={50}
                 pattern="[A-Za-zÀ-ÿ' \-]+"
                 title="Letters, spaces, apostrophes and hyphens only"
+                value={formData.firstName}
+                onChange={handleChange}
                 required
               />
             </label>
+
             <label className="initial">
               M.I.
               <input
@@ -61,8 +155,11 @@ function App() {
                 maxLength={2}
                 pattern="[A-Za-z]\.?"
                 title="One letter, with an optional period (e.g. M or M.)"
+                value={formData.middleInitial}
+                onChange={handleChange}
               />
             </label>
+
             <label>
               Last name
               <input
@@ -75,6 +172,8 @@ function App() {
                 maxLength={50}
                 pattern="[A-Za-zÀ-ÿ' \-]+"
                 title="Letters, spaces, apostrophes and hyphens only"
+                value={formData.lastName}
+                onChange={handleChange}
                 required
               />
             </label>
@@ -95,9 +194,12 @@ function App() {
                 maxLength={20}
                 pattern="[A-Za-z0-9_]+"
                 title="3-20 characters: letters, numbers and underscores only"
+                value={formData.username}
+                onChange={handleChange}
                 required
               />
             </label>
+
             <label>
               Email
               <input
@@ -109,6 +211,8 @@ function App() {
                 autoCapitalize="none"
                 spellCheck={false}
                 maxLength={254}
+                value={formData.email}
+                onChange={handleChange}
                 required
               />
             </label>
@@ -116,6 +220,7 @@ function App() {
 
           <label>
             Phone number
+
             <div className="phone-row">
               <select
                 name="countryCode"
@@ -129,19 +234,26 @@ function App() {
                   </option>
                 ))}
               </select>
+
               <input
                 type="tel"
                 id="phone"
                 name="phone"
-                placeholder={isPH ? '987 6543 210' : 'Phone Number'}
+                placeholder={isPH ? '9171234567' : 'Phone Number'}
                 autoComplete="tel-national"
                 inputMode="numeric"
-                pattern={isPH ? '9\\d{9}' : '\\d{6,12}'}
+                pattern={
+                  isPH
+                    ? '^9[0-9]{9}$'
+                    : '^[0-9]{6,12}$'
+                }
                 title={
                   isPH
-                    ? '10 digits starting with 9, without the leading 0 (e.g. 9171234567)'
-                    : '6-12 digits, without the country code'
+                    ? 'Enter 10 digits starting with 9, without the leading 0 (e.g. 9171234567)'
+                    : 'Enter 6-12 digits without the country code'
                 }
+                value={formData.phone}
+                onChange={handleChange}
                 required
               />
             </div>
@@ -150,6 +262,7 @@ function App() {
           <div className="password-row">
             <label>
               Password
+
               <div className="input-wrap">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -159,22 +272,29 @@ function App() {
                   autoComplete="new-password"
                   minLength={8}
                   maxLength={128}
-                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}"
+                  pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9]).{8,}"
                   title="At least 8 characters with an uppercase letter, a lowercase letter and a number"
+                  value={formData.password}
+                  onChange={handleChange}
                   required
                 />
+
                 <button
                   type="button"
                   className="toggle-btn"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={
+                    showPassword ? 'Hide password' : 'Show password'
+                  }
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
             </label>
+
             <label>
               Confirm password
+
               <div className="input-wrap">
                 <input
                   type={showConfirm ? 'text' : 'password'}
@@ -184,13 +304,20 @@ function App() {
                   autoComplete="new-password"
                   minLength={8}
                   maxLength={128}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
                   required
                 />
+
                 <button
                   type="button"
                   className="toggle-btn"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
+                  onClick={() => setShowConfirm((prev) => !prev)}
+                  aria-label={
+                    showConfirm
+                      ? 'Hide confirm password'
+                      : 'Show confirm password'
+                  }
                 >
                   {showConfirm ? 'Hide' : 'Show'}
                 </button>
@@ -198,14 +325,15 @@ function App() {
             </label>
           </div>
 
-          <button type="submit">Register</button>
+          <button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Registering...' : 'Register'}
+          </button>
         </form>
       </div>
 
-        {/* footer here */}
-
+      {/* Footer here */}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

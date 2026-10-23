@@ -170,9 +170,9 @@ export default function App() {
 
             <div className="sf_col">
               <h5>Get Connected</h5>
-              <button type="button" onClick={() => navigate('/login')}>
+             <button type="button"onClick={() => navigate('/login')}>
                 Login / Sign Up
-              </button>
+             </button>
               <button type="button">Join the Community</button>
               <button type="button">WMSU on Facebook &#8599;</button>
             </div>
