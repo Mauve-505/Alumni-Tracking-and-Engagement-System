@@ -4,6 +4,9 @@ import "./EventAndNews.css";
 import logo from "./assets/wmsu-logo.png";
 import menu from "./assets/menu-dots.png";
 
+// BACKEND CONNECTION POINT:
+// Groupmates: Connect the existing news page to backend news data
+// when implementing backend integration.
 const newsItems = [
   {
     id: 1,
@@ -103,13 +106,6 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
   const [feedback, setFeedback] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
-  const navLinks = [
-    { label: "Home", href: "/#home" },
-    { label: "About", href: "/#about" },
-    { label: "News", href: "/news" },
-    { label: "Events", href: "/events" },
-    { label: "Merch", href: "/#merch" },
-  ];
 
   const handleNavigate = (e, path) => {
     if (e) e.preventDefault();
@@ -163,38 +159,7 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
     <div className="news-page">
       {/* UNIFIED HEADER */}
       <header className="header">
-        <a
-          href="/#home"
-          className="brand"
-          onClick={(e) => handleNavigate(e, "/")}
-          aria-label="WMSU Alumni Home"
-        >
-          <img src={logo} alt="WMSU logo" />
-          <span>WMSU Alumni</span>
-        </a>
-
-        <nav className="desktop_nav" aria-label="Main navigation">
-          {navLinks.map((item) => (
-            <a
-              key={item.label}
-              href={item.href}
-              className={item.label === "News" ? "nav-link-active" : ""}
-              aria-current={item.label === "News" ? "page" : undefined}
-              onClick={(e) => handleNavigate(e, item.href)}
-            >
-              {item.label}
-            </a>
-          ))}
-
-          <a
-            className="nav_login"
-            href="/login"
-            onClick={(e) => handleNavigate(e, "/login")}
-          >
-            Login / Sign Up
-          </a>
-        </nav>
-
+    
         <div className="menu_wrap">
           <button
             className="menu_button"

@@ -234,6 +234,38 @@ body {
       }
     }
 
+    & .input-wrap {
+      position: relative;
+      width: calc(100% - 48px);
+      max-width: 420px;
+
+      & input {
+        width: 100%;
+        padding-right: 64px;
+      }
+
+      & .toggle-btn {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        width: auto;
+        height: auto;
+        padding: 4px 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--red);
+        background: none;
+        border: none;
+        border-radius: 0;
+        cursor: pointer;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
     & button {
       height: 44px;
       border: none;

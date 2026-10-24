@@ -1,0 +1,569 @@
+/* ========================================================
+   WMSU Alumni Profile Page Styles
+   Follows WMSU Brand Visual Identity & Color Palette
+   ======================================================== */
+
+.profile_page {
+  --wmsu-crimson: #a51f2b;
+  --wmsu-crimson-dark: #7f1722;
+  --wmsu-crimson-light: #fff5f5;
+  --wmsu-crimson-border: #f5c2c7;
+  --wmsu-navy: #102d50;
+  --wmsu-text: #222b39;
+  --wmsu-muted: #626f84;
+  --wmsu-bg: #f7f9fc;
+  --wmsu-card-bg: #ffffff;
+  --wmsu-border: #e7e9ee;
+  --wmsu-shadow-sm: 0 2px 8px rgba(16, 45, 80, 0.05);
+  --wmsu-shadow-md: 0 4px 16px rgba(16, 45, 80, 0.08);
+
+  font-family: "DM Sans", "Segoe UI", Arial, sans-serif;
+  color: var(--wmsu-text);
+  background-color: var(--wmsu-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile_page * {
+  box-sizing: border-box;
+}
+
+/* Demo Notice Bar */
+.profile_demo_bar {
+  background-color: #fff9e6;
+  border-bottom: 1px solid #ffeeba;
+  color: #856404;
+  padding: 8px 24px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.demo_pill {
+  background-color: #ffe8a1;
+  color: #6d5200;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Main Layout */
+.profile_main {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+  flex: 1;
+}
+
+/* Feedback Alert Banners */
+.profile_feedback_banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+
+.profile_feedback_banner.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.profile_feedback_banner.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.profile_feedback_banner.info {
+  background-color: #e8f4fd;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
+
+.feedback_close_btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  color: inherit;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+/* Profile Header Card */
+.profile_header_card {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 16px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: var(--wmsu-shadow-sm);
+  margin-bottom: 32px;
+}
+
+.profile_header_left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.profile_avatar_circle {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.profile_avatar_circle.crimson {
+  background: linear-gradient(135deg, #a51f2b 0%, #7f1722 100%);
+}
+
+.profile_avatar_circle.navy {
+  background: linear-gradient(135deg, #102d50 0%, #1f4a7d 100%);
+}
+
+.profile_avatar_circle.dark {
+  background: linear-gradient(135deg, #5c0f17 0%, #3d070c 100%);
+}
+
+.profile_header_details {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile_title_row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.profile_user_name {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--wmsu-navy);
+  letter-spacing: -0.4px;
+}
+
+.verified_badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #e6f4ea;
+  color: #137333;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid #ceead6;
+}
+
+.profile_subtitle {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--wmsu-crimson);
+}
+
+.profile_college_name {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: var(--wmsu-muted);
+}
+
+.alumni_id_tag {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wmsu-muted);
+  background-color: #f1f3f7;
+  padding: 2px 8px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+/* Action Buttons */
+.profile_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn_edit {
+  background-color: var(--wmsu-crimson);
+  color: #ffffff;
+}
+
+.btn_edit:hover {
+  background-color: var(--wmsu-crimson-dark);
+}
+
+.editing_action_buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn_save {
+  background-color: var(--wmsu-crimson);
+  color: #ffffff;
+}
+
+.btn_save:hover {
+  background-color: var(--wmsu-crimson-dark);
+}
+
+.btn_cancel {
+  background-color: transparent;
+  color: var(--wmsu-text);
+  border: 1px solid var(--wmsu-border);
+}
+
+.btn_cancel:hover {
+  background-color: #f1f3f7;
+}
+
+/* View Mode Grid */
+.profile_view_grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.profile_info_card {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: var(--wmsu-shadow-sm);
+}
+
+.full_width_card {
+  grid-column: 1 / -1;
+}
+
+.card_heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--wmsu-navy);
+  border-bottom: 1px solid var(--wmsu-border);
+  padding-bottom: 12px;
+}
+
+.card_heading svg {
+  color: var(--wmsu-crimson);
+}
+
+.info_rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.info_row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info_label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--wmsu-muted);
+}
+
+.info_value {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--wmsu-text);
+}
+
+.info_value.badge_active {
+  color: #137333;
+  font-weight: 700;
+}
+
+.bio_text {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--wmsu-text);
+}
+
+/* Edit Mode Form */
+.profile_edit_form {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: var(--wmsu-shadow-sm);
+  margin-bottom: 32px;
+}
+
+.form_section_header {
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--wmsu-border);
+  padding-bottom: 16px;
+}
+
+.form_section_header h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--wmsu-navy);
+}
+
+.form_section_header p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--wmsu-muted);
+}
+
+.form_grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form_group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.initial_group {
+  max-width: 100px;
+}
+
+.full_width {
+  grid-column: 1 / -1;
+}
+
+.form_group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--wmsu-navy);
+}
+
+.req {
+  color: var(--wmsu-crimson);
+}
+
+.form_group input,
+.form_group select,
+.form_group textarea {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--wmsu-border);
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: var(--wmsu-text);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form_group input:focus,
+.form_group select:focus,
+.form_group textarea:focus {
+  border-color: var(--wmsu-crimson);
+  box-shadow: 0 0 0 3px rgba(165, 31, 43, 0.15);
+}
+
+.form_group input.input_error {
+  border-color: #dc3545;
+  background-color: #fff9f9;
+}
+
+.field_error {
+  font-size: 12px;
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.char_counter {
+  font-size: 11px;
+  color: var(--wmsu-muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+.form_actions_bottom {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--wmsu-border);
+}
+
+/* Account Session / Logout */
+.profile_account_section {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.account_actions_box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.account_actions_box h3 {
+  margin: 0 0 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wmsu-navy);
+}
+
+.account_actions_box p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--wmsu-muted);
+}
+
+.btn_logout {
+  background-color: transparent;
+  color: var(--wmsu-crimson);
+  border: 1px solid var(--wmsu-crimson-border);
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn_logout:hover {
+  background-color: var(--wmsu-crimson-light);
+  border-color: var(--wmsu-crimson);
+}
+
+/* Profile Footer */
+.profile_footer {
+  background-color: #ffffff;
+  border-top: 1px solid var(--wmsu-border);
+  padding: 24px;
+  margin-top: auto;
+}
+
+.profile_footer_inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer_brand_small {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer_brand_small img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.footer_brand_small span {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--wmsu-navy);
+}
+
+.footer_copy {
+  margin: 0;
+  font-size: 12px;
+  color: var(--wmsu-muted);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .profile_header_card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+  }
+
+  .profile_header_left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .profile_header_actions {
+    width: 100%;
+  }
+
+  .profile_btn {
+    width: 100%;
+  }
+
+  .editing_action_buttons {
+    width: 100%;
+  }
+
+  .profile_view_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile_footer_inner {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+}

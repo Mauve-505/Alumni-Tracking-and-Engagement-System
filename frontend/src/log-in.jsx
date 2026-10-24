@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './log-in.css';
@@ -17,6 +16,10 @@ const saveRole = (role) => {
 const API_URL =
   import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
+// BACKEND CONNECTION POINT:
+// Groupmates: Connect the existing login form to backend
+// authentication here. Handle authentication and session creation
+// in the backend. Frontend implementation only for this task.
 async function loginRequest({ email, password }) {
   const response = await fetch(`${API_URL}/api/auth/login`, {
     method: 'POST',
@@ -51,6 +54,7 @@ const EMPTY_CREDENTIALS = {
 
 function App() {
   const [credentials, setCredentials] = useState(EMPTY_CREDENTIALS);
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
@@ -79,8 +83,10 @@ function App() {
         // Storage unavailable; ignore.
       }
 
+      // Redirect to the Homepage on successful login
       navigate(user.role === 'admin' ? '/admin' : '/home');
     } catch (err) {
+      // Do not redirect when login fails; present error feedback
       alert(err.message || 'Unable to log in.');
     } finally {
       setIsSubmitting(false);
@@ -109,15 +115,25 @@ function App() {
           />
 
           <p>Password:</p>
-          <input
-            type="password"
-            name="password"
-            placeholder="Enter your password"
-            autoComplete="current-password"
-            value={credentials.password}
-            onChange={updateField('password')}
-            required
-          />
+          <div className="input-wrap">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              name="password"
+              placeholder="Enter your password"
+              autoComplete="current-password"
+              value={credentials.password}
+              onChange={updateField('password')}
+              required
+            />
+            <button
+              type="button"
+              className="toggle-btn"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
 
           <button
             type="submit"
