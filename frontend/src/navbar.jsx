@@ -7,9 +7,9 @@ import menu from './assets/menu-dots.png'
 // Dropdown links: change the paths to match your real routes.
 const LINKS = [
   { label: 'Login/Signup', href: '/login' },
-  { label: 'News', href: '/news' },
+  { label: 'News', href: '/newsandupdates' },
   { label: 'Events', href: '/events' },
-  { label: 'Merch', href: '/merch' },
+  // { label: 'Merch', href: '/merch' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
   { label: 'Feedback', href: '/feedback' },

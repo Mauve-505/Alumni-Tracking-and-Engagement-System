@@ -21,40 +21,44 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Also overrides Vite's default centered #root / flex body */
 html,
-body,
-#root {
-  display: block;
+body {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   max-width: none;
   margin: 0;
   padding: 0;
-}
-
-body {
   background-color: #fff;
   color: var(--text);
+  overflow-x: hidden;
 }
 
-.log-in_page {
+/* #root is exactly one screen tall (taller only if the content needs it).
+   The reusable navbar and the page stack in a column inside it, so no
+   navbar height has to be guessed anymore. */
+#root {
   display: flex;
   flex-direction: column;
   width: 100%;
-
-  /* --header-h = height of the reusable navbar that sits above this page.
-     Change it if your navbar is taller or shorter than 58px. */
-  --header-h: 52px;
-  --card-h: 480px;
-  height: calc(100vh - var(--header-h));
-  height: calc(100dvh - var(--header-h));
-  max-height: calc(100dvh - var(--header-h));
+  max-width: none;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
   background-color: #fff;
-  overflow: hidden;
+}
+
+/* The page takes whatever space is left under the navbar */
+.log-in_page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  --card-h: 480px;
+  background-color: #fff;
 
   /* ==========================================================
-     HEADER
+     HEADER (only used if this page renders its own header)
      ========================================================== */
   .header {
     position: sticky;
@@ -152,10 +156,11 @@ body {
     row-gap: clamp(2px, 1vh, 8px);
     column-gap: 6px;
     min-height: 0;
-    /* Centered in the space below the navbar */
+    /* margin:auto centers the card in the space under the navbar
+       (and above the footer, if there is one) */
     margin: auto;
     padding: 0;
-    overflow: hidden; /* card no longer scrolls */
+    overflow: hidden;
     border-radius: 20px;
     background-color: #fff;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.18),
@@ -314,6 +319,7 @@ body {
     justify-content: space-between;
     gap: 20px;
     flex-shrink: 0;
+    width: 100%;
     padding: 12px 48px;
     background-color: var(--navy);
     font-size: 12px;
@@ -497,24 +503,6 @@ body {
 }
 
 /* ==========================================================
-   LOCK PAGE SCROLL (login page only, desktop)
-   ========================================================== */
-@media (min-width: 901px) {
-  html:has(.log-in_page),
-  body:has(.log-in_page),
-  #root:has(.log-in_page) {
-    overflow: hidden;
-  }
-}
-
-/* Keep the page background white so no other stylesheet's color shows through */
-html:has(.log-in_page),
-body:has(.log-in_page),
-#root:has(.log-in_page) {
-  background-color: #fff;
-}
-
-/* ==========================================================
    COMPACT MODE (desktop, shorter windows)
    ========================================================== */
 @media (min-width: 901px) and (max-height: 800px) {
@@ -549,9 +537,6 @@ body:has(.log-in_page),
    ========================================================== */
 @media (max-width: 900px) {
   .log-in_page {
-    height: auto;
-    max-height: none;
-    min-height: calc(100dvh - var(--header-h));
     overflow: visible;
 
     .body {

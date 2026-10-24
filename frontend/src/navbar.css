@@ -1,198 +1,191 @@
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
 
-img,
-video,
-svg,
-canvas {
-  max-width: 100%;
-  height: auto;
-}
+/* ========================================
+   NAVBAR
+======================================== */
 
-:root,
-html,
-body,
-#root {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 0;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  text-align: left;
-  background-color: #a82322;
-}
-
-body {
-  color: #333;
-}
-
-html,
-body {
-  overflow-x: clip;
-}
-
-/* ==========================================================
-   LAYOUT: navbar + page fill exactly one screen
-   ========================================================== */
-.layout {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  overflow-x: hidden;
-  height: 100vh;
-  height: 100dvh;
-  background-color: #a82322;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.layout_main {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.layout_main.centered {
-  padding: 12px;
-
-  > * {
-    margin: auto;
-  }
-}
-
-/* ==========================================================
-   NAVBAR (copied from the landing page header)
-   ========================================================== */
 .navbar {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 1000;
+
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  flex: 0 0 52px;
+  width: 100%;
+  height: 52px;
+  min-height: 52px;
+  padding: 6px 24px;
+
+  background-color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ========================================
+   LOGO AND TITLE
+======================================== */
+
+.navbar_brand {
+  display: flex;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
-  flex-shrink: 0;
-  width: 100%;
-  padding: 6px 24px;
+
+  width: auto;
+  min-width: 0;
+  margin-right: auto;
+
+  text-decoration: none;
+}
+
+.navbar_brand img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  max-width: 40px;
+  object-fit: contain;
+}
+
+.navbar_brand p {
+  margin: 0;
+  padding: 0;
+
+  color: #c93b33;
+  font-size: 24px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ========================================
+   MENU CONTAINER
+======================================== */
+
+.navbar_menu {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  width: auto;
+}
+
+/* ========================================
+   MENU BUTTON
+======================================== */
+
+.navbar_menu_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+  background-color: #e53935;
+
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.navbar_menu_button:hover {
+  background-color: #c93b33;
+}
+
+.navbar_menu_button:focus-visible {
+  outline: 3px solid #c93b33;
+  outline-offset: 3px;
+}
+
+.navbar_menu_button img {
+  display: block;
+  width: 20px;
+  height: 20px;
+  max-width: 20px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+/* ========================================
+   DROPDOWN MENU
+======================================== */
+
+.navbar_dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 1001;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 180px;
+  min-width: 160px;
+  max-width: calc(100vw - 24px);
+
+  overflow: hidden;
+  border-radius: 12px;
+
   background-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
 
-  .navbar_brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-right: auto;
-    text-decoration: none;
+.navbar_dropdown a {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
 
-    img {
-      height: 40px;
-      width: auto;
-    }
+  color: #333333;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
 
-    p {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      min-width: 0;
-      font-size: 24px;
-      font-weight: 700;
-      color: #c93b33;
-    }
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.navbar_dropdown a:hover {
+  background-color: #f7c3c2;
+  color: #c93b33;
+}
+
+.navbar_dropdown a[aria-current="page"] {
+  color: #c93b33;
+  background-color: #fff1f0;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 480px) {
+  .navbar {
+    padding: 6px 12px;
+    gap: 8px;
   }
 
-  .navbar_menu {
-    position: relative;
+  .navbar_brand {
+    gap: 8px;
+  }
+
+  .navbar_brand img {
+    width: 34px;
+    height: 34px;
+    max-width: 34px;
+  }
+
+  .navbar_brand p {
+    font-size: 18px;
   }
 
   .navbar_menu_button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background-color: #e53935;
-    cursor: pointer;
-
-    &:hover {
-      background-color: #c93b33;
-    }
-
-    img {
-      height: 20px;
-      width: 20px;
-      filter: brightness(0) invert(1); /* turns the icon white */
-    }
-  }
-
-  .navbar_dropdown {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
-    z-index: 20;
-    display: flex;
-    flex-direction: column;
-    min-width: 160px;
-    overflow: hidden;
-    border-radius: 12px;
-    background: #ffffff;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-
-    a {
-      padding: 10px 16px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #333;
-      text-decoration: none;
-
-      &:hover {
-        background: #f7c3c2;
-        color: #c93b33;
-      }
-
-      /* the page you are on */
-      &[aria-current='page'] {
-        color: #c93b33;
-      }
-    }
-  }
-}
-
-
-
-/* ==========================================================
-   RESPONSIVE
-   ========================================================== */
-
-/* Tablets: page can grow taller than the screen */
-@media (max-width: 900px) {
-  .layout {
-    height: auto;
-    min-height: 100dvh;
-  }
-
-  .layout_main {
-    overflow-y: visible;
-  }
-}
-
-/* Phones */
-@media (max-width: 480px) {
-  .navbar {
-    padding: 6px 16px;
-
-    .navbar_brand p {
-      font-size: 18px;
-    }
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
   }
 }
