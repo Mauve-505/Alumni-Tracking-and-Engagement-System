@@ -1,0 +1,766 @@
+/* ========================================================
+   WMSU Alumni Homepage Styles
+   Follows WMSU Brand Visual Identity & Color Palette
+   ======================================================== */
+
+.homepage {
+  --wmsu-crimson: #a51f2b;
+  --wmsu-crimson-dark: #7f1722;
+  --wmsu-crimson-light: #fff5f5;
+  --wmsu-crimson-border: #f5c2c7;
+  --wmsu-navy: #102d50;
+  --wmsu-text: #222b39;
+  --wmsu-muted: #626f84;
+  --wmsu-bg: #f7f9fc;
+  --wmsu-card-bg: #ffffff;
+  --wmsu-border: #e7e9ee;
+  --wmsu-shadow-sm: 0 2px 8px rgba(16, 45, 80, 0.05);
+  --wmsu-shadow-md: 0 4px 16px rgba(16, 45, 80, 0.08);
+
+  font-family: "DM Sans", "Segoe UI", Arial, sans-serif;
+  color: var(--wmsu-text);
+  background-color: var(--wmsu-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.homepage * {
+  box-sizing: border-box;
+}
+
+/* Demo Notice Bar */
+.homepage_demo_bar {
+  background-color: #fff9e6;
+  border-bottom: 1px solid #ffeeba;
+  color: #856404;
+  padding: 8px 24px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.demo_pill {
+  background-color: #ffe8a1;
+  color: #6d5200;
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Welcome Hero Section */
+.homepage_hero {
+  position: relative;
+  min-height: 420px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+}
+
+.homepage_hero_overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(127, 23, 34, 0.92) 0%,
+    rgba(165, 31, 43, 0.85) 60%,
+    rgba(16, 45, 80, 0.75) 100%
+  );
+}
+
+.homepage_hero_content {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  color: #ffffff;
+}
+
+.homepage_hero_badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+.badge_logo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+.homepage_hero_title {
+  margin: 0 0 16px;
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+}
+
+.homepage_hero_desc {
+  max-width: 680px;
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0 0 28px;
+  color: #fce8eb;
+}
+
+/* Quick Shortcuts */
+.homepage_shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.shortcut_btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.shortcut_primary {
+  background-color: #ffffff;
+  color: var(--wmsu-crimson);
+}
+
+.shortcut_primary:hover {
+  background-color: #fbe4e8;
+  transform: translateY(-1px);
+}
+
+.shortcut_secondary {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.shortcut_secondary:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.shortcut_outline {
+  background-color: transparent;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.shortcut_outline:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Main Container */
+.homepage_main {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px 60px;
+  flex: 1;
+}
+
+.homepage_status_box {
+  padding: 16px 20px;
+  background-color: #e8f4fd;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+.homepage_status_box.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+}
+
+/* Section Common Styles */
+.homepage_section {
+  margin-bottom: 48px;
+}
+
+.section_header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.section_eyebrow {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--wmsu-crimson);
+  margin-bottom: 4px;
+}
+
+.section_title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--wmsu-navy);
+  letter-spacing: -0.5px;
+}
+
+.section_view_all {
+  color: var(--wmsu-crimson);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.section_view_all:hover {
+  color: var(--wmsu-crimson-dark);
+  text-decoration: underline;
+}
+
+/* B. News Grid & Cards */
+.news_cards_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.news_card {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--wmsu-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news_card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--wmsu-shadow-md);
+}
+
+.news_card_media {
+  position: relative;
+  width: 100%;
+  height: 190px;
+  overflow: hidden;
+  background-color: #eceff1;
+}
+
+.news_card_media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.news_card:hover .news_card_media img {
+  transform: scale(1.03);
+}
+
+.news_category_pill {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background-color: rgba(16, 45, 80, 0.85);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(4px);
+}
+
+.news_card_body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.news_card_date {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--wmsu-muted);
+  margin-bottom: 8px;
+}
+
+.news_card_title {
+  margin: 0 0 10px;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--wmsu-navy);
+}
+
+.news_card_excerpt {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--wmsu-text);
+  flex: 1;
+}
+
+.news_card_footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--wmsu-border);
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+.news_author {
+  font-size: 12px;
+  color: var(--wmsu-muted);
+  font-weight: 500;
+  max-width: 160px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.news_read_more {
+  background: none;
+  border: none;
+  color: var(--wmsu-crimson);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.news_read_more:hover {
+  color: var(--wmsu-crimson-dark);
+  text-decoration: underline;
+}
+
+/* C. Events Grid & Cards */
+.events_cards_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.event_card {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  gap: 16px;
+  box-shadow: var(--wmsu-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.event_card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--wmsu-shadow-md);
+}
+
+.event_date_badge {
+  flex-shrink: 0;
+  width: 58px;
+  height: 64px;
+  background-color: var(--wmsu-crimson-light);
+  border: 1px solid var(--wmsu-crimson-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.event_month {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--wmsu-crimson);
+  letter-spacing: 0.5px;
+}
+
+.event_day {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--wmsu-crimson-dark);
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.event_card_body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.event_card_top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.event_category_pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--wmsu-crimson);
+  background-color: var(--wmsu-crimson-light);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.event_time {
+  font-size: 12px;
+  color: var(--wmsu-muted);
+  font-weight: 500;
+}
+
+.event_card_title {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--wmsu-navy);
+  line-height: 1.35;
+}
+
+.event_location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--wmsu-muted);
+  margin: 0 0 10px;
+  line-height: 1.4;
+}
+
+.geo_icon {
+  flex-shrink: 0;
+  color: var(--wmsu-crimson);
+}
+
+.event_card_desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--wmsu-text);
+  margin: 0 0 14px;
+  flex: 1;
+}
+
+.event_card_actions {
+  margin-top: auto;
+}
+
+.event_details_btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--wmsu-crimson);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.event_details_btn:hover {
+  color: var(--wmsu-crimson-dark);
+  text-decoration: underline;
+}
+
+/* D. Engagement Section */
+.engagement_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.engagement_card {
+  background-color: var(--wmsu-card-bg);
+  border: 1px solid var(--wmsu-border);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--wmsu-shadow-sm);
+}
+
+.engagement_icon_wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background-color: var(--wmsu-crimson-light);
+  color: var(--wmsu-crimson);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.engagement_card h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--wmsu-navy);
+}
+
+.engagement_card p {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--wmsu-muted);
+  flex: 1;
+}
+
+.engagement_btn {
+  align-self: flex-start;
+  background-color: transparent;
+  color: var(--wmsu-crimson);
+  border: 1px solid var(--wmsu-crimson);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.engagement_btn:hover {
+  background-color: var(--wmsu-crimson);
+  color: #ffffff;
+}
+
+/* E. Spotlight Section */
+.spotlight_section {
+  margin-bottom: 40px;
+}
+
+.spotlight_card {
+  background: linear-gradient(135deg, #ffffff 40%, var(--wmsu-crimson-light) 100%);
+  border: 1px solid var(--wmsu-crimson-border);
+  border-left: 5px solid var(--wmsu-crimson);
+  border-radius: 12px;
+  padding: 28px 32px;
+  position: relative;
+  box-shadow: var(--wmsu-shadow-sm);
+}
+
+.spotlight_badge {
+  display: inline-block;
+  background-color: var(--wmsu-crimson);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.spotlight_content h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--wmsu-navy);
+}
+
+.spotlight_quote {
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--wmsu-text);
+  margin: 0 0 10px;
+}
+
+.spotlight_meta {
+  font-size: 13px;
+  color: var(--wmsu-muted);
+  margin: 0 0 16px;
+}
+
+.spotlight_actions {
+  display: flex;
+}
+
+.spotlight_link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--wmsu-crimson);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.spotlight_link:hover {
+  text-decoration: underline;
+  color: var(--wmsu-crimson-dark);
+}
+
+/* F. Footer */
+.homepage_footer {
+  background-color: #1a2332;
+  color: #e0e4ec;
+  padding: 48px 24px 28px;
+  margin-top: auto;
+}
+
+.homepage_footer_inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.homepage_footer_top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 36px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer_brand p {
+  color: #a0aec0;
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 440px;
+  margin: 0;
+}
+
+.footer_logo_row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.footer_logo_row img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.footer_logo_row span {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.footer_nav_col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer_nav_col h4 {
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #ffffff;
+}
+
+.footer_nav_col button,
+.footer_nav_col a,
+.footer_nav_col span {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  font-size: 14px;
+  color: #a0aec0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer_nav_col button:hover,
+.footer_nav_col a:hover {
+  color: #ffffff;
+}
+
+.homepage_footer_bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 24px;
+  font-size: 13px;
+  color: #718096;
+}
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .homepage_footer_top {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+
+@media (max-width: 640px) {
+  .homepage_hero_content {
+    padding: 36px 16px;
+  }
+
+  .homepage_shortcuts {
+    flex-direction: column;
+  }
+
+  .shortcut_btn {
+    width: 100%;
+  }
+
+  .news_cards_grid,
+  .events_cards_grid {
+    grid-template-columns: 1fr;
+  }
+
+  .event_card {
+    flex-direction: column;
+  }
+
+  .event_date_badge {
+    width: 100%;
+    height: 40px;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .homepage_footer_bottom {
+    flex-direction: column;
+    text-align: center;
+  }
+}

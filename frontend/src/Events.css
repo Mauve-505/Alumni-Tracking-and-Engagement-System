@@ -22,24 +22,6 @@
   padding: 36px 6% 60px;
 }
 
-/* Nav Link Active Indicator */
-.desktop_nav .nav-link-active {
-  color: var(--red, #a51f2b) !important;
-  font-weight: 700 !important;
-  position: relative;
-}
-
-.desktop_nav .nav-link-active::after {
-  content: "";
-  position: absolute;
-  bottom: -6px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: var(--red, #a51f2b);
-  border-radius: 2px;
-}
-
 /* Hero Section */
 .events-hero {
   display: flex;
