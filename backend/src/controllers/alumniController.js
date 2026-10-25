@@ -46,8 +46,10 @@ exports.getAlumni = async (req, res) => {
   }
 };
 
+// GET /api/alumni/:id  (one profile with employment and education)
 exports.getAlumniById = async (req, res) => {
   const { id } = req.params;
+
   try {
     const profile = await pool.query(
       `SELECT p.id, p.user_id, u.email, p.first_name, p.last_name,
@@ -61,6 +63,7 @@ exports.getAlumniById = async (req, res) => {
     if (profile.rows.length === 0) {
       return res.status(404).json({ error: 'Alumni profile not found' });
     }
+
     const employment = await pool.query(
       'SELECT * FROM employment_history WHERE profile_id = $1 ORDER BY is_current DESC, start_date DESC',
       [id]
@@ -69,8 +72,13 @@ exports.getAlumniById = async (req, res) => {
       'SELECT * FROM education WHERE profile_id = $1 ORDER BY year DESC',
       [id]
     );
+
     res.json({
-      data: { ...profile.rows[0], employment: employment.rows, education: education.rows },
+      data: {
+        ...profile.rows[0],
+        employment: employment.rows,
+        education: education.rows,
+      },
     });
   } catch (err) {
     console.error(err);
@@ -78,6 +86,7 @@ exports.getAlumniById = async (req, res) => {
   }
 };
 
+// PUT /api/alumni/:id  (owner or admin only)
 exports.updateAlumni = async (req, res) => {
   const { id } = req.params;
   const {
@@ -85,13 +94,19 @@ exports.updateAlumni = async (req, res) => {
     program, phone, address, bio, photo_url,
   } = req.body;
 
-  if (graduation_year !== undefined && graduation_year !== null && !Number.isInteger(graduation_year)) {
+  if (
+    graduation_year !== undefined &&
+    graduation_year !== null &&
+    !Number.isInteger(graduation_year)
+  ) {
     return res.status(400).json({ error: 'graduation_year must be a number' });
   }
 
   try {
     const access = await checkProfileAccess(id, requester_id);
-    if (!access.ok) return res.status(access.status).json({ error: access.error });
+    if (!access.ok) {
+      return res.status(access.status).json({ error: access.error });
+    }
 
     const result = await pool.query(
       `UPDATE alumni_profiles SET
@@ -108,6 +123,7 @@ exports.updateAlumni = async (req, res) => {
        RETURNING *`,
       [first_name, last_name, graduation_year, program, phone, address, bio, photo_url, id]
     );
+
     res.json({ data: result.rows[0] });
   } catch (err) {
     console.error(err);
