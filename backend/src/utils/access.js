@@ -21,7 +21,10 @@ async function checkProfileAccess(profileId, requesterId) {
 }
 
 async function checkAdmin(requesterId) {
-  if (!requesterId) {
+  const validRequesterId =
+    (typeof requesterId === 'number' && Number.isInteger(requesterId)) ||
+    (typeof requesterId === 'string' && /^\d+$/.test(requesterId));
+  if (!validRequesterId || Number(requesterId) <= 0 || Number(requesterId) > 2147483647) {
     return { ok: false, status: 400, error: 'requester_id is required' };
   }
   const user = await pool.query('SELECT role FROM users WHERE id = $1', [requesterId]);

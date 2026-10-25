@@ -1,114 +1,116 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Events.css";
 import "./EventAndNews.css";
+import "./ContentManagement.css";
 import logo from "./assets/wmsu-logo.png";
 import menu from "./assets/menu-dots.png";
+import { apiRequest, getSessionUser } from "./api";
 
-// BACKEND CONNECTION POINT:
-// Groupmates: Connect event listings and RSVP actions to backend
-// event and attendance functionality in the future.
-const initialEvents = [
-  {
-    id: 1,
-    title: "WMSU Grand Alumni Homecoming 2026",
-    category: "Alumni Gathering",
-    date: "November 21, 2026",
-    time: "8:00 AM – 5:00 PM",
-    location: "WMSU University Gymnasium & Quadrangle",
-    image:
-      "https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Reconnect with former professors, classmates, and friends. Celebrate milestones, university advancements, and the lifelong Crimson spirit across all colleges.",
-    organizer: "WMSU Office of Alumni Affairs",
-    capacity: 650,
-    agenda: [
-      "08:00 AM – Registration & Fellowship Breakfast",
-      "09:30 AM – Thanksgiving Mass & University Parade",
-      "11:00 AM – Presidential Address & State of the University",
-      "12:30 PM – Grand Alumni Luncheon & College Gatherings",
-      "02:30 PM – Jubilarian Recognition & Awards Ceremonies",
-      "04:30 PM – Fellowship Night & Commemorative Photo",
-    ],
-  },
-  {
-    id: 2,
-    title: "Alumni Career & Leadership Summit",
-    category: "Career Development",
-    date: "November 28, 2026",
-    time: "9:00 AM – 3:30 PM",
-    location: "Dr. Juanito Bruno Gymnasium & Online Stream",
-    image:
-      "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "A premier platform connecting seasoned professionals, emerging alumni leaders, and graduating students for mentorship, high-impact career panels, and strategic recruitment.",
-    organizer: "WMSU Career Services & Alumni Network",
-    capacity: 250,
-    agenda: [
-      "09:00 AM – Keynote: Global Trends & Regional Innovation",
-      "10:30 AM – Industry Breakout: Tech, Education, Health & Engineering",
-      "01:00 PM – Executive Mentorship Roundtables",
-      "02:30 PM – Networking Mixer & Resume Matchmaking",
-    ],
-  },
-  {
-    id: 3,
-    title: "Crimson Reach Community Outreach Mission",
-    category: "Community Service",
-    date: "December 5, 2026",
-    time: "7:30 AM – 1:00 PM",
-    location: "Barangay Limpapa & Remote Centers, Zamboanga City",
-    image:
-      "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Give back to the broader Zamboanga Peninsula community through free medical-dental clinics, book drives, and digital literacy workshops led by WMSU alumni volunteers.",
-    organizer: "WMSU Alumni Volunteer Corps",
-    capacity: 120,
-    agenda: [
-      "07:30 AM – Assembly at WMSU Main Campus Gate",
-      "08:30 AM – Community Welcome & Needs Briefing",
-      "09:00 AM – Concurrent Health & Educational Stations",
-      "12:00 PM – Community Fellowship & Distribution of Supplies",
-    ],
-  },
-  {
-    id: 4,
-    title: "Distinguished Alumni Recognition Gala",
-    category: "University Event",
-    date: "December 12, 2026",
-    time: "5:30 PM – 9:30 PM",
-    location: "WMSU Grand Ballroom & Social Hall",
-    image:
-      "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=1200&q=80",
-    description:
-      "Honoring outstanding alumni whose remarkable contributions to science, literature, public governance, and industry have brought honor and distinction to Western Mindanao State University.",
-    organizer: "WMSU Board of Regents & Alumni Association",
-    capacity: 300,
-    agenda: [
-      "05:30 PM – Red Carpet Arrival & Cocktail Reception",
-      "06:30 PM – Conferment of Lifetime Achievement Citations",
-      "08:00 PM – Gala Dinner & University Philharmonic Performance",
-      "09:15 PM – The Alma Mater Hymn & Closing Toast",
-    ],
-  },
+const categories = ["All Events"];
+const navLinks = [
+  { label: "Home", href: "/home" },
+  { label: "News & Updates", href: "/news" },
+  { label: "Events", href: "/events" },
+  { label: "Directory", href: "/directory" },
 ];
 
-const categories = [
-  "All Events",
-  "Alumni Gathering",
-  "Career Development",
-  "Community Service",
-  "University Event",
-];
+function mapEvent(event) {
+  const date = new Date(event.event_date);
+  return {
+    ...event,
+    category: "Alumni Event",
+    date: date.toLocaleDateString(),
+    time: date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+    organizer: "WMSU Alumni Affairs",
+    capacity: event.rsvp_count,
+    agenda: [],
+  };
+}
+
+function toDateTimeInput(value) {
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
 
 export function EventListPage({ onNavigate, showToast }) {
-  const [events] = useState(initialEvents);
+  const [events, setEvents] = useState([]);
+  const [user] = useState(getSessionUser);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [eventForm, setEventForm] = useState({ title: "", description: "", location: "", event_date: "" });
+  const [rsvpRows, setRsvpRows] = useState([]);
+  const [rsvps, setRsvps] = useState({});
   const [activeCategory, setActiveCategory] = useState("All Events");
   const [search, setSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [rsvps, setRsvps] = useState({});
   const [open, setOpen] = useState(false);
   const [feedback, setFeedback] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+
+  const loadEvents = async () => {
+    setLoading(true);
+    try {
+      const data = await apiRequest("/api/events");
+      setEvents(data.map(mapEvent));
+      setError("");
+    } catch (err) {
+      setError(err.message || "Could not load events.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadRsvps = async () => {
+    if (user?.role !== "admin") return;
+    try {
+      const data = await apiRequest(`/api/admin/rsvps?requester_id=${user.id}`);
+      setRsvpRows(data);
+    } catch (err) {
+      setError(err.message || "Could not load RSVPs.");
+    }
+  };
+
+  useEffect(() => {
+    loadEvents();
+    loadRsvps();
+  }, []);
+
+  const submitEvent = async (event) => {
+    event.preventDefault();
+    if (user?.role !== "admin") return;
+    setSaving(true);
+    setError("");
+    try {
+      await apiRequest(editingId ? `/api/events/${editingId}` : "/api/events", {
+        method: editingId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...eventForm, requester_id: user.id }),
+      });
+      setEventForm({ title: "", description: "", location: "", event_date: "" });
+      setEditingId(null);
+      await loadEvents();
+      showToast?.(editingId ? "Event updated." : "Event created.", "success");
+    } catch (err) {
+      setError(err.message || "Could not save event.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteEvent = async (event) => {
+    if (!user?.id || !window.confirm(`Delete “${event.title}”?`)) return;
+    try {
+      await apiRequest(`/api/events/${event.id}?requester_id=${user.id}`, { method: "DELETE" });
+      await loadEvents();
+      await loadRsvps();
+      if (selectedEvent?.id === event.id) setSelectedEvent(null);
+      showToast?.("Event deleted.", "success");
+    } catch (err) {
+      setError(err.message || "Could not delete event.");
+    }
+  };
 
 
   const handleNavigate = (e, path) => {
@@ -119,20 +121,24 @@ export function EventListPage({ onNavigate, showToast }) {
     }
   };
 
-  const handleRSVP = (event) => {
-    const isCurrentlyRsvpd = !!rsvps[event.id];
-    setRsvps((prev) => ({
-      ...prev,
-      [event.id]: !isCurrentlyRsvpd,
-    }));
-
-    if (showToast) {
-      showToast(
-        !isCurrentlyRsvpd
-          ? `RSVP confirmed for "${event.title}"!`
-          : `RSVP removed for "${event.title}".`,
-        !isCurrentlyRsvpd ? "success" : "info"
-      );
+  const handleRSVP = async (event, response = "going") => {
+    if (!user?.id || !user.profile_id) {
+      setError("Log in with an alumni account to RSVP.");
+      return;
+    }
+    try {
+      await apiRequest(`/api/events/${event.id}/rsvp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ requester_id: user.id, response }),
+      });
+      setRsvps((previous) => ({ ...previous, [event.id]: response }));
+      await loadEvents();
+      if (user.role === "admin") await loadRsvps();
+      setError("");
+      showToast?.(`Response saved: ${response}.`, "success");
+    } catch (err) {
+      setError(err.message || "Could not save RSVP.");
     }
   };
 
@@ -159,9 +165,7 @@ export function EventListPage({ onNavigate, showToast }) {
   };
 
   const filteredEvents = events.filter((event) => {
-    const matchesCategory =
-      activeCategory === "All Events" ||
-      event.category === activeCategory;
+    const matchesCategory = activeCategory === "All Events";
 
     const matchesSearch = [
       event.title,
@@ -246,6 +250,62 @@ export function EventListPage({ onNavigate, showToast }) {
             </div>
           </section>
 
+          {error && <p className="content-api-error" role="alert">{error}</p>}
+          {loading && <p className="content-api-status">Loading events...</p>}
+
+          {user?.role === "admin" && (
+            <form className="content-admin-form" onSubmit={submitEvent}>
+              <h2>{editingId ? "Edit event" : "Create an event"}</h2>
+              <label>
+                Title
+                <input
+                  value={eventForm.title}
+                  onChange={(event) => setEventForm((form) => ({ ...form, title: event.target.value }))}
+                  maxLength={200}
+                  required
+                />
+              </label>
+              <label>
+                Description
+                <textarea
+                  value={eventForm.description}
+                  onChange={(event) => setEventForm((form) => ({ ...form, description: event.target.value }))}
+                  rows={3}
+                />
+              </label>
+              <div className="content-admin-fields">
+                <label>
+                  Location
+                  <input
+                    value={eventForm.location}
+                    onChange={(event) => setEventForm((form) => ({ ...form, location: event.target.value }))}
+                    maxLength={200}
+                  />
+                </label>
+                <label>
+                  Date and time
+                  <input
+                    type="datetime-local"
+                    value={eventForm.event_date}
+                    onChange={(event) => setEventForm((form) => ({ ...form, event_date: event.target.value }))}
+                    required
+                  />
+                </label>
+              </div>
+              <div className="content-admin-actions">
+                <button type="submit" disabled={saving}>
+                  {saving ? "Saving..." : editingId ? "Save changes" : "Create event"}
+                </button>
+                {editingId && (
+                  <button type="button" className="secondary" onClick={() => {
+                    setEditingId(null);
+                    setEventForm({ title: "", description: "", location: "", event_date: "" });
+                  }}>Cancel</button>
+                )}
+              </div>
+            </form>
+          )}
+
           {selectedEvent ? (
             /* EVENT DETAILS VIEW */
             <section className="event-details fade-in">
@@ -258,15 +318,12 @@ export function EventListPage({ onNavigate, showToast }) {
               </button>
 
               <article className="event-details-card">
-                <div className="event-details-image">
-                  <img
-                    src={selectedEvent.image}
-                    alt={selectedEvent.title}
-                  />
-                  <span className="event-category-badge">
-                    {selectedEvent.category}
-                  </span>
-                </div>
+                {selectedEvent.image && (
+                  <div className="event-details-image">
+                    <img src={selectedEvent.image} alt={selectedEvent.title} />
+                    <span className="event-category-badge">{selectedEvent.category}</span>
+                  </div>
+                )}
 
                 <div className="event-details-body">
                   <div className="event-header-row">
@@ -320,12 +377,12 @@ export function EventListPage({ onNavigate, showToast }) {
                       <span className="event-info-icon">👥</span>
                       <div>
                         <small>EXPECTED ATTENDANCE</small>
-                        <strong>{selectedEvent.capacity} Alumni &amp; Guests</strong>
+                        <strong>{selectedEvent.capacity} RSVP responses</strong>
                       </div>
                     </div>
                   </div>
 
-                  <div className="event-agenda">
+                  {selectedEvent.agenda.length > 0 && <div className="event-agenda">
                     <h3>Program &amp; Agenda</h3>
                     <ul>
                       {selectedEvent.agenda.map((item, index) => (
@@ -337,35 +394,34 @@ export function EventListPage({ onNavigate, showToast }) {
                         </li>
                       ))}
                     </ul>
-                  </div>
+                  </div>}
 
                   <div className="event-rsvp-panel">
                     <div>
                       <h3>
                         {rsvps[selectedEvent.id]
-                          ? "You are officially attending!"
+                          ? `Your response: ${rsvps[selectedEvent.id]}`
                           : "Join your fellow graduates"}
                       </h3>
                       <p>
                         {rsvps[selectedEvent.id]
-                          ? "Your seat is noted. We look forward to welcoming you back home to WMSU!"
-                          : "Confirm your attendance to receive event reminders and check-in credentials."}
+                          ? "Your response has been saved for this event."
+                          : "Choose your response to let the organizers know if you plan to attend."}
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      className={
-                        rsvps[selectedEvent.id]
-                          ? "event-rsvp-button registered"
-                          : "event-rsvp-button"
-                      }
-                      onClick={() => handleRSVP(selectedEvent)}
-                    >
-                      {rsvps[selectedEvent.id]
-                        ? "✓ RSVP Confirmed"
-                        : "RSVP to Attend →"}
-                    </button>
+                    <div className="event-rsvp-options" aria-label="RSVP response">
+                      {["going", "maybe", "declined"].map((response) => (
+                        <button
+                          key={response}
+                          type="button"
+                          className={rsvps[selectedEvent.id] === response ? "selected" : ""}
+                          onClick={() => handleRSVP(selectedEvent, response)}
+                        >
+                          {response === "going" ? "Going" : response === "maybe" ? "Maybe" : "Can't go"}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </article>
@@ -427,14 +483,14 @@ export function EventListPage({ onNavigate, showToast }) {
 
               {/* EVENTS GRID */}
               <section className="events-grid" aria-label="Event list">
-                {filteredEvents.map((event) => (
+                {!loading && filteredEvents.map((event) => (
                   <article className="event-card" key={event.id}>
-                    <div className="event-card-image">
-                      <img src={event.image} alt={event.title} loading="lazy" />
-                      <span className="event-category-badge">
-                        {event.category}
-                      </span>
-                    </div>
+                    {event.image && (
+                      <div className="event-card-image">
+                        <img src={event.image} alt={event.title} loading="lazy" />
+                        <span className="event-category-badge">{event.category}</span>
+                      </div>
+                    )}
 
                     <div className="event-card-body">
                       <div className="event-card-date">
@@ -472,23 +528,40 @@ export function EventListPage({ onNavigate, showToast }) {
                               ? "event-quick-rsvp registered"
                               : "event-quick-rsvp"
                           }
-                          onClick={() => handleRSVP(event)}
-                          aria-pressed={!!rsvps[event.id]}
+                          onClick={() => handleRSVP(event, "going")}
+                          aria-pressed={rsvps[event.id] === "going"}
                         >
-                          {rsvps[event.id] ? "✓ Attending" : "RSVP"}
+                          {rsvps[event.id] === "going" ? "✓ Going" : "RSVP"}
                         </button>
                       </div>
+                      {user?.role === "admin" && (
+                        <div className="content-item-actions">
+                          <button type="button" onClick={() => {
+                            setEditingId(event.id);
+                            setEventForm({
+                              title: event.title,
+                              description: event.description || "",
+                              location: event.location || "",
+                              event_date: toDateTimeInput(event.event_date),
+                            });
+                            window.scrollTo({ top: 300, behavior: "smooth" });
+                          }}>Edit</button>
+                          <button type="button" onClick={() => deleteEvent(event)}>Delete</button>
+                        </div>
+                      )}
                     </div>
                   </article>
                 ))}
               </section>
 
-              {filteredEvents.length === 0 && (
+              {!loading && filteredEvents.length === 0 && !error && (
                 <div className="events-empty-state">
                   <span className="empty-symbol">✦</span>
-                  <h3>No matching alumni events</h3>
+                  <h3>{events.length === 0 ? "No events have been scheduled yet" : "No matching alumni events"}</h3>
                   <p>
-                    We couldn't find events matching "{search}". Try searching with different keywords or reset your filters.
+                    {events.length === 0
+                      ? "New events will appear here when they are created."
+                      : `We couldn't find events matching "${search}". Try other keywords or reset your filters.`}
                   </p>
                   <button
                     type="button"
@@ -500,6 +573,31 @@ export function EventListPage({ onNavigate, showToast }) {
                     Reset Search &amp; Filters
                   </button>
                 </div>
+              )}
+
+              {user?.role === "admin" && (
+                <section className="content-admin-roster">
+                  <h2>Event RSVPs</h2>
+                  {rsvpRows.length === 0 ? (
+                    <p>No RSVP responses yet.</p>
+                  ) : (
+                    <div className="content-roster-table-wrap">
+                      <table>
+                        <thead><tr><th>Event</th><th>Alumni</th><th>Email</th><th>Response</th></tr></thead>
+                        <tbody>
+                          {rsvpRows.map((row) => (
+                            <tr key={row.id}>
+                              <td>{row.event_title}</td>
+                              <td>{row.first_name} {row.last_name}</td>
+                              <td>{row.email}</td>
+                              <td>{row.response}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </section>
               )}
             </>
           )}

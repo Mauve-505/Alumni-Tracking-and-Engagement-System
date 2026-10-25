@@ -3,83 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./HomePage.css";
 import logo from "./assets/wmsu-logo.png";
 import banner from "./assets/wmsu_school_picture.jpg";
-
-// Demonstration News Items consistent with NewsAndUpdates_page data
-const DEMO_NEWS = [
-  {
-    id: 1,
-    category: "University News",
-    title: "WMSU Achieves Record Passing Rate in 2026 Licensure Examinations",
-    description:
-      "Western Mindanao State University celebrates another academic milestone as graduates from the College of Engineering, Nursing, and Teacher Education post historic top-ranking results in national board exams.",
-    date: "October 14, 2026",
-    image:
-      "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
-    author: "Office of Academic Affairs",
-  },
-  {
-    id: 2,
-    category: "Alumni Achievements",
-    title: "Dr. Maria Santos (BS Bio '12) Awarded ASEAN Science & Climate Fellowship",
-    description:
-      "WMSU alumna and marine conservationist Dr. Maria Santos receives prestigious international recognition for pioneering coral restoration and sustainable fisheries in the Sulu-Sulawesi Seascape.",
-    date: "October 12, 2026",
-    image:
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80",
-    author: "Alumni Spotlight Bureau",
-  },
-  {
-    id: 3,
-    category: "Campus Events",
-    title: "Registrations Open for Annual WMSU Alumni Golf & Fellowship Cup",
-    description:
-      "Alumni golfers and enthusiasts from around the country and overseas chapters prepare to gather for sportsmanship, camaraderie, and fundraising for student calamity grants.",
-    date: "October 10, 2026",
-    image:
-      "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
-    author: "WMSUAAI Sports Committee",
-  },
-];
-
-// Demonstration Events Items consistent with EventList_page data
-const DEMO_EVENTS = [
-  {
-    id: 1,
-    title: "WMSU Grand Alumni Homecoming 2026",
-    category: "Alumni Gathering",
-    date: "November 21, 2026",
-    month: "NOV",
-    day: "21",
-    time: "8:00 AM – 5:00 PM",
-    location: "WMSU University Gymnasium & Quadrangle",
-    description:
-      "Reconnect with former professors, classmates, and friends. Celebrate milestones, university advancements, and the lifelong Crimson spirit across all colleges.",
-  },
-  {
-    id: 2,
-    title: "Alumni Career & Leadership Summit",
-    category: "Career Development",
-    date: "November 28, 2026",
-    month: "NOV",
-    day: "28",
-    time: "9:00 AM – 3:30 PM",
-    location: "Dr. Juanito Bruno Gymnasium & Online Stream",
-    description:
-      "A premier platform connecting seasoned professionals, emerging alumni leaders, and graduating students for mentorship and high-impact career panels.",
-  },
-  {
-    id: 3,
-    title: "Crimson Reach Community Outreach Mission",
-    category: "Community Service",
-    date: "December 5, 2026",
-    month: "DEC",
-    day: "05",
-    time: "7:30 AM – 1:00 PM",
-    location: "Barangay Limpapa & Remote Centers, Zamboanga City",
-    description:
-      "Give back to the broader Zamboanga Peninsula community through free medical-dental clinics, book drives, and digital literacy workshops.",
-  },
-];
+import { apiRequest } from "./api";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -92,18 +16,18 @@ export default function HomePage() {
   // BACKEND CONNECTION POINT:
   // Groupmates: Replace demonstration news data with published
   // news supplied by the backend. No API integration in this task.
-  const [newsList] = useState(DEMO_NEWS);
+  const [newsList, setNewsList] = useState([]);
 
   // BACKEND CONNECTION POINT:
   // Groupmates: Connect this section to backend event data,
   // including event titles, dates, locations, and descriptions.
-  const [eventList] = useState(DEMO_EVENTS);
+  const [eventList, setEventList] = useState([]);
 
   // BACKEND CONNECTION POINT:
   // Groupmates: Connect these frontend states to the actual loading,
   // error, and empty responses from the backend when available.
-  const [isLoading] = useState(false);
-  const [loadError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   useEffect(() => {
     // Attempt to read frontend user/profile data stored from login or profile page
@@ -120,6 +44,40 @@ export default function HomePage() {
       // Storage unavailable or invalid JSON; use neutral state
       setUser(null);
     }
+
+    let cancelled = false;
+    Promise.all([apiRequest("/api/posts"), apiRequest("/api/events")])
+      .then(([posts, events]) => {
+        if (cancelled) return;
+        setNewsList(posts.slice(0, 3).map((post) => ({
+          ...post,
+          category: post.type === "update" ? "Announcement" : "University News",
+          date: new Date(post.published_at).toLocaleDateString(),
+          description: post.content,
+          author: post.author_email || "WMSU Alumni",
+        })));
+        setEventList(events.slice(0, 3).map((event) => {
+          const date = new Date(event.event_date);
+          return {
+            ...event,
+            category: "Alumni Event",
+            month: date.toLocaleString(undefined, { month: "short" }).toUpperCase(),
+            day: String(date.getDate()).padStart(2, "0"),
+            time: date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }),
+          };
+        }));
+        setLoadError(null);
+      })
+      .catch((err) => {
+        if (!cancelled) setLoadError(err.message || "Could not load portal data.");
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Determine greeting based on available frontend data
@@ -222,7 +180,6 @@ export default function HomePage() {
             {newsList.map((item) => (
               <article key={item.id} className="news_card">
                 <div className="news_card_media">
-                  <img src={item.image} alt={item.title} loading="lazy" />
                   <span className="news_category_pill">{item.category}</span>
                 </div>
                 <div className="news_card_body">
@@ -243,6 +200,9 @@ export default function HomePage() {
               </article>
             ))}
           </div>
+          {!isLoading && !loadError && newsList.length === 0 && (
+            <p className="homepage_status_box">No posts have been published yet.</p>
+          )}
         </section>
 
         {/* C. UPCOMING EVENTS */}
@@ -301,6 +261,9 @@ export default function HomePage() {
               </article>
             ))}
           </div>
+          {!isLoading && !loadError && eventList.length === 0 && (
+            <p className="homepage_status_box">No events have been scheduled yet.</p>
+          )}
         </section>
 
         {/* D. ALUMNI ENGAGEMENT SHORTCUTS */}

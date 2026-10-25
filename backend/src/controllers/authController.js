@@ -4,33 +4,52 @@ const pool = require('../config/db');
 exports.register = async (req, res) => {
   const { email, password, first_name, last_name } = req.body;
 
-  if (!email || !password || !first_name || !last_name) {
+  if (
+    typeof email !== 'string' || !email.trim() ||
+    typeof password !== 'string' || !password ||
+    typeof first_name !== 'string' || !first_name.trim() ||
+    typeof last_name !== 'string' || !last_name.trim()
+  ) {
     return res.status(400).json({ error: 'Please fill in all fields' });
   }
 
+  let client;
   try {
-    const exists = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    client = await pool.connect();
+    await client.query('BEGIN');
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const exists = await client.query('SELECT id FROM users WHERE email = $1', [normalizedEmail]);
     if (exists.rows.length > 0) {
+      await client.query('ROLLBACK');
       return res.status(409).json({ error: 'Email already registered' });
     }
 
     const hash = await bcrypt.hash(password, 10);
 
-    const userResult = await pool.query(
+    const userResult = await client.query(
       'INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, role',
-      [email, hash]
+      [normalizedEmail, hash]
     );
     const user = userResult.rows[0];
 
-    await pool.query(
-      'INSERT INTO alumni_profiles (user_id, first_name, last_name) VALUES ($1, $2, $3)',
-      [user.id, first_name, last_name]
+    const profileResult = await client.query(
+      `INSERT INTO alumni_profiles (user_id, first_name, last_name)
+       VALUES ($1, $2, $3) RETURNING id`,
+      [user.id, first_name.trim(), last_name.trim()]
     );
 
-    res.status(201).json({ data: user });
+    await client.query('COMMIT');
+    res.status(201).json({ data: { ...user, profile_id: profileResult.rows[0].id } });
   } catch (err) {
+    if (client) await client.query('ROLLBACK').catch(() => {});
+    if (err.code === '23505') {
+      return res.status(409).json({ error: 'Email already registered' });
+    }
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  } finally {
+    client?.release();
   }
 };
 

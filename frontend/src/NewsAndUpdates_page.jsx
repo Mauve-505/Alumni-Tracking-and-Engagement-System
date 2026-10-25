@@ -1,110 +1,100 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./NewsUpdates.css";
 import "./EventAndNews.css";
+import "./ContentManagement.css";
 import logo from "./assets/wmsu-logo.png";
 import menu from "./assets/menu-dots.png";
-
-// BACKEND CONNECTION POINT:
-// Groupmates: Connect the existing news page to backend news data
-// when implementing backend integration.
-const newsItems = [
-  {
-    id: 1,
-    category: "University News",
-    title: "WMSU Achieves Record Passing Rate in 2026 Licensure Examinations",
-    description:
-      "Western Mindanao State University celebrates another academic milestone as graduates from the College of Engineering, Nursing, and Teacher Education post historic top-ranking results in national board exams.",
-    content: `Western Mindanao State University once again proved its excellence in higher education by achieving premier passing rates in the recently concluded national licensure examinations. 
-
-The College of Teacher Education, recognized as a Center of Excellence, produced 4 top-notchers, while the College of Nursing recorded an extraordinary 98.4% institutional passing rate for first-time takers. 
-
-University President and Academic Vice Presidents commended the faculty, alumni mentors, and students for their tireless dedication. "This achievement reflects not just the diligence of our examinees, but the enduring commitment of our alumni mentors who continuously contribute scholarship funds and review resources," the President remarked during the university convocation.
-
-The Alumni Association will hold a testimonial dinner next month to honor the top performing graduates and confer honorary alumni citations.`,
-    date: "October 14, 2026",
-    image:
-      "https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=1200&q=80",
-    source: "WMSU Public Information Office",
-    featured: true,
-    author: "Office of the Vice President for Academic Affairs",
-  },
-  {
-    id: 2,
-    category: "Alumni Achievements",
-    title: "Dr. Maria Santos (BS Bio '12) Awarded ASEAN Science & Climate Fellowship",
-    description:
-      "WMSU alumna and marine conservationist Dr. Maria Santos receives prestigious international recognition for pioneering coral restoration and sustainable fisheries in the Sulu-Sulawesi Seascape.",
-    content: `Dr. Maria Santos, a proud alumna of the WMSU College of Science and Mathematics (Class of 2012), has been selected as one of the 2026 ASEAN Science and Climate Innovation Fellows.
-
-Her groundbreaking research on climate-resilient coral micro-fragmentation along the Zamboanga Peninsula has provided local coastal communities with sustainable alternative livelihood frameworks while protecting vulnerable marine ecosystems.
-
-Dr. Santos credited her foundational years at WMSU for igniting her passion for regional environmental resilience. "The hands-on field biology expeditions led by our WMSU professors instilled in me a deep respect for our local waters and biodiversity," she shared during her acceptance interview.
-
-She plans to host a research symposium and mentoring session for current WMSU marine biology and environmental science students later this semester.`,
-    date: "October 12, 2026",
-    image:
-      "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80",
-    source: "Alumni Spotlight Bureau",
-    featured: false,
-    author: "Alumni Affairs Communications",
-  },
-  {
-    id: 3,
-    category: "Events",
-    title: "Registrations Open for Annual WMSU Alumni Golf & Fellowship Cup",
-    description:
-      "Alumni golfers and enthusiasts from around the country and overseas chapters prepare to gather for sportsmanship, camaraderie, and fundraising for student calamity grants.",
-    content: `The Western Mindanao State University Alumni Association Inc. (WMSUAAI) has officially opened registration for the 2026 Crimson Golf & Sports Fellowship Cup.
-
-Scheduled for early next month, the tournament serves as a key annual fundraiser supporting the WMSU Alumni Emergency Calamity Fund, which assists students experiencing sudden financial displacement or natural emergencies.
-
-Participants can register across multiple division flights including Open, Seniors, and Inter-College Alumni Alumni Chapters. Trophies handcrafted by Zamboanga artisans and university commemorative gear will be presented during the fellowship banquet.
-
-Interested alumni may confirm their pairing slots through the Alumni Portal or by visiting the Alumni Affairs Secretariat at the WMSU Main Campus.`,
-    date: "October 10, 2026",
-    image:
-      "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80",
-    source: "WMSU Alumni Association Inc.",
-    featured: false,
-    author: "WMSUAAI Sports Committee",
-  },
-  {
-    id: 4,
-    category: "Announcements",
-    title: "New Digital Alumni ID & Lifetime Verification Portal Launches",
-    description:
-      "Access university library privileges, athletic facilities, campus parking, and exclusive regional alumni discounts directly from your mobile smartphone.",
-    content: `In line with WMSU's institutional digital transformation roadmap, the Alumni Affairs Office is pleased to introduce the verified Digital Alumni Card within the Alumni Tracking and Engagement System.
-
-The digital credential replaces physical plastic cards with a cryptographically signed QR code verifiable by campus security and affiliated merchant partners across Region IX.
-
-Registered alumni can now present their digital card to access the University Library, rent facilities at alumni discount rates, and avail of partner perks across participating restaurants, bookstores, and clinics.
-
-To generate your digital credential, log in to your account and verify your college graduation details under your Profile settings.`,
-    date: "October 8, 2026",
-    image:
-      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80",
-    source: "WMSU Management Information Systems",
-    featured: false,
-    author: "WMSU MIS Center",
-  },
-];
+import { apiRequest, getSessionUser } from "./api";
 
 const categories = [
   "All News",
   "University News",
-  "Alumni Achievements",
-  "Events",
   "Announcements",
 ];
 
+const navLinks = [
+  { label: "Home", href: "/home" },
+  { label: "News & Updates", href: "/news" },
+  { label: "Events", href: "/events" },
+  { label: "Directory", href: "/directory" },
+];
+
+function mapPost(post) {
+  return {
+    ...post,
+    category: post.type === "update" ? "Announcements" : "University News",
+    description: post.content,
+    date: new Date(post.published_at).toLocaleDateString(),
+    source: "WMSU Alumni",
+    author: post.author_email,
+  };
+}
+
 export function NewsAndUpdatesPage({ onNavigate, showToast }) {
+  const [newsItems, setNewsItems] = useState([]);
+  const [user] = useState(getSessionUser);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [postForm, setPostForm] = useState({ title: "", content: "", type: "news" });
   const [activeCategory, setActiveCategory] = useState("All News");
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [feedback, setFeedback] = useState("");
   const [feedbackMessage, setFeedbackMessage] = useState("");
+
+  const loadPosts = async () => {
+    setLoading(true);
+    try {
+      const data = await apiRequest("/api/posts");
+      setNewsItems(data.map(mapPost));
+      setError("");
+    } catch (err) {
+      setError(err.message || "Could not load posts.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
+  const submitPost = async (event) => {
+    event.preventDefault();
+    if (!user?.id || user.role !== "admin") return;
+    setSaving(true);
+    setError("");
+    try {
+      await apiRequest(editingId ? `/api/posts/${editingId}` : "/api/posts", {
+        method: editingId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...postForm, requester_id: user.id }),
+      });
+      setPostForm({ title: "", content: "", type: "news" });
+      setEditingId(null);
+      await loadPosts();
+      showToast?.(editingId ? "Post updated." : "Post published.", "success");
+    } catch (err) {
+      setError(err.message || "Could not save post.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deletePost = async (post) => {
+    if (!user?.id || !window.confirm(`Delete “${post.title}”?`)) return;
+    try {
+      await apiRequest(`/api/posts/${post.id}?requester_id=${user.id}`, { method: "DELETE" });
+      await loadPosts();
+      if (selectedArticle?.id === post.id) setSelectedArticle(null);
+      showToast?.("Post deleted.", "success");
+    } catch (err) {
+      setError(err.message || "Could not delete post.");
+    }
+  };
 
 
   const handleNavigate = (e, path) => {
@@ -238,15 +228,12 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
               </button>
 
               <article className="article-reader-card">
-                <div className="article-reader-image">
-                  <img
-                    src={selectedArticle.image}
-                    alt={selectedArticle.title}
-                  />
-                  <span className="news-card-category">
-                    {selectedArticle.category}
-                  </span>
-                </div>
+                {selectedArticle.image && (
+                  <div className="article-reader-image">
+                    <img src={selectedArticle.image} alt={selectedArticle.title} />
+                    <span className="news-card-category">{selectedArticle.category}</span>
+                  </div>
+                )}
 
                 <div className="article-reader-body">
                   <div className="article-meta-bar">
@@ -346,6 +333,54 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
                 </span>
               </div>
 
+              {error && <p className="content-api-error" role="alert">{error}</p>}
+              {loading && <p className="content-api-status">Loading posts...</p>}
+
+              {user?.role === "admin" && (
+                <form className="content-admin-form" onSubmit={submitPost}>
+                  <h2>{editingId ? "Edit post" : "Publish a post"}</h2>
+                  <label>
+                    Title
+                    <input
+                      value={postForm.title}
+                      onChange={(event) => setPostForm((form) => ({ ...form, title: event.target.value }))}
+                      maxLength={200}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Content
+                    <textarea
+                      value={postForm.content}
+                      onChange={(event) => setPostForm((form) => ({ ...form, content: event.target.value }))}
+                      rows={4}
+                      required
+                    />
+                  </label>
+                  <label>
+                    Type
+                    <select
+                      value={postForm.type}
+                      onChange={(event) => setPostForm((form) => ({ ...form, type: event.target.value }))}
+                    >
+                      <option value="news">News</option>
+                      <option value="update">Update</option>
+                    </select>
+                  </label>
+                  <div className="content-admin-actions">
+                    <button type="submit" disabled={saving}>
+                      {saving ? "Saving..." : editingId ? "Save changes" : "Publish post"}
+                    </button>
+                    {editingId && (
+                      <button type="button" className="secondary" onClick={() => {
+                        setEditingId(null);
+                        setPostForm({ title: "", content: "", type: "news" });
+                      }}>Cancel</button>
+                    )}
+                  </div>
+                </form>
+              )}
+
               {/* CATEGORIES */}
               <div
                 className="news-categories"
@@ -373,7 +408,7 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
                 className="news-grid"
                 aria-label="News articles"
               >
-                {filteredNews.map((item) => (
+                {!loading && filteredNews.map((item) => (
                   <article
                     className={
                       item.featured
@@ -382,16 +417,12 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
                     }
                     key={item.id}
                   >
-                    <div className="news-image-wrapper">
-                      <img
-                        src={item.image}
-                        alt={item.title}
-                        loading="lazy"
-                      />
-                      <span className="news-card-category">
-                        {item.category}
-                      </span>
-                    </div>
+                    {item.image && (
+                      <div className="news-image-wrapper">
+                        <img src={item.image} alt={item.title} loading="lazy" />
+                        <span className="news-card-category">{item.category}</span>
+                      </div>
+                    )}
 
                     <div className="news-card-body">
                       <div className="news-card-meta">
@@ -415,18 +446,30 @@ export function NewsAndUpdatesPage({ onNavigate, showToast }) {
                         >
                           Read Full Story <span aria-hidden="true">→</span>
                         </button>
+                        {user?.role === "admin" && (
+                          <div className="content-item-actions">
+                            <button type="button" onClick={() => {
+                              setEditingId(item.id);
+                              setPostForm({ title: item.title, content: item.content, type: item.type });
+                              window.scrollTo({ top: 500, behavior: "smooth" });
+                            }}>Edit</button>
+                            <button type="button" onClick={() => deletePost(item)}>Delete</button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </article>
                 ))}
               </section>
 
-              {filteredNews.length === 0 && (
+              {!loading && filteredNews.length === 0 && !error && (
                 <div className="news-empty-state">
                   <span aria-hidden="true" className="empty-symbol">✦</span>
-                  <h3>No stories match your query</h3>
+                  <h3>{newsItems.length === 0 ? "No posts have been published yet" : "No stories match your query"}</h3>
                   <p>
-                    We couldn't find any articles matching "{search}". Try searching for another term or browse all news categories.
+                    {newsItems.length === 0
+                      ? "New posts will appear here when they are published."
+                      : `We couldn't find any articles matching "${search}". Try another term or browse all categories.`}
                   </p>
                   <button
                     type="button"

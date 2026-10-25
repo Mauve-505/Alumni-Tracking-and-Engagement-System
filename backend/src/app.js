@@ -5,6 +5,7 @@ const authRoutes = require('./routes/auth');
 const alumniRoutes = require('./routes/alumni');
 const recordRoutes = require('./routes/records');
 const adminRoutes = require('./routes/admin');
+const engagementRoutes = require('./routes/engagement');
 
 
 
@@ -17,6 +18,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/alumni', alumniRoutes);
 app.use('/api', recordRoutes);
 app.use('/api', adminRoutes);
+app.use('/api', engagementRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
