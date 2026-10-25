@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProfilePage.css";
 import logo from "./assets/wmsu-logo.png";
+import { CareerHistory, EducationHistory } from "./HistorySections.jsx";
 
 // List of official WMSU colleges for the dropdown
 const WMSU_COLLEGES = [
@@ -36,14 +37,46 @@ const DEFAULT_PROFILE = {
   avatarTheme: "crimson",
 };
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+// Fields the database does not store stay in the browser
+const EXTRAS_KEY = "wmsu_profile_extras";
+
+function readExtras() {
+  try {
+    return JSON.parse(localStorage.getItem(EXTRAS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+// Convert a backend profile into the shape this page uses
+function fromApi(data, extras) {
+  return {
+    ...DEFAULT_PROFILE,
+    firstName: data.first_name || "",
+    lastName: data.last_name || "",
+    email: data.email || "",
+    phone: data.phone || "",
+    degree: data.program || "",
+    gradYear: data.graduation_year ? String(data.graduation_year) : "",
+    bio: data.bio || "",
+    status: data.status || "pending",
+    alumniId: `WMSU-${data.graduation_year || "0000"}-${String(data.id).padStart(4, "0")}`,
+    middleInitial: extras.middleInitial || "",
+    college: extras.college || WMSU_COLLEGES[0],
+    avatarTheme: extras.avatarTheme || "crimson",
+  };
+}
+
 export default function ProfilePage() {
   const navigate = useNavigate();
 
   // BACKEND CONNECTION POINT:
   // Groupmates: Connect these frontend states to the actual loading,
   // error, and empty responses from the backend when available.
-  const [isLoading] = useState(false);
-  const [loadError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
 
   // Profile data states
   const [profile, setProfile] = useState(DEFAULT_PROFILE);
@@ -52,31 +85,36 @@ export default function ProfilePage() {
   const [errors, setErrors] = useState({});
   const [feedback, setFeedback] = useState(null);
 
-  // Load existing frontend user / profile data if present
+  // Load the logged-in alumni's profile from the backend
   useEffect(() => {
+    let user = null;
     try {
-      const storedProfile = localStorage.getItem("wmsu_profile");
-      const storedUser = localStorage.getItem("wmsu_user");
-
-      if (storedProfile) {
-        const parsed = JSON.parse(storedProfile);
-        setProfile(parsed);
-        setDraft(parsed);
-      } else if (storedUser) {
-        const user = JSON.parse(storedUser);
-        const merged = {
-          ...DEFAULT_PROFILE,
-          firstName: user.first_name || user.firstName || "Crimson",
-          lastName: user.last_name || user.lastName || "Alumnus",
-          email: user.email || DEFAULT_PROFILE.email,
-        };
-        setProfile(merged);
-        setDraft(merged);
-      }
+      user = JSON.parse(localStorage.getItem("wmsu_user"));
     } catch {
-      // Storage unavailable; keep defaults
+      user = null;
     }
-  }, []);
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (!user.profile_id) {
+      setLoadError("Please log out and log in again to load your profile.");
+      setIsLoading(false);
+      return;
+    }
+
+    fetch(`${API_URL}/api/alumni/${user.profile_id}`)
+      .then(async (res) => {
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to load profile.");
+        const loaded = fromApi(result.data, readExtras());
+        setProfile(loaded);
+        setDraft(loaded);
+      })
+      .catch((err) => setLoadError(err.message || "Could not reach the server."))
+      .finally(() => setIsLoading(false));
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -121,10 +159,7 @@ export default function ProfilePage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  // BACKEND CONNECTION POINT:
-  // Groupmates: Connect the profile save handler to the backend
-  // profile-update functionality. Do not implement it in this task.
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -135,21 +170,54 @@ export default function ProfilePage() {
       return;
     }
 
-    // Save demonstration edits to React state
-    setProfile(draft);
-    setIsEditing(false);
-
+    let user = null;
     try {
-      localStorage.setItem("wmsu_profile", JSON.stringify(draft));
+      user = JSON.parse(localStorage.getItem("wmsu_user"));
     } catch {
-      // Storage unavailable; changes remain in React state only
+      user = null;
+    }
+    if (!user || !user.profile_id) {
+      setFeedback({ type: "error", message: "Please log in again to save changes." });
+      return;
     }
 
-    setFeedback({
-      type: "success",
-      message:
-        "Profile updated successfully in frontend state! (Demonstration note: Changes are held locally in your browser and will synchronize with the server once backend integration is complete).",
-    });
+    try {
+      const res = await fetch(`${API_URL}/api/alumni/${user.profile_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requester_id: user.id,
+          first_name: draft.firstName.trim(),
+          last_name: draft.lastName.trim(),
+          graduation_year: parseInt(draft.gradYear, 10),
+          program: draft.degree,
+          phone: draft.phone,
+          bio: draft.bio,
+        }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to save profile.");
+
+      // Keep fields the database does not store in the browser
+      const extras = {
+        middleInitial: draft.middleInitial,
+        college: draft.college,
+        avatarTheme: draft.avatarTheme,
+      };
+      try {
+        localStorage.setItem(EXTRAS_KEY, JSON.stringify(extras));
+      } catch {
+        // Storage unavailable
+      }
+
+      const saved = fromApi({ ...result.data, email: draft.email }, extras);
+      setProfile(saved);
+      setDraft(saved);
+      setIsEditing(false);
+      setFeedback({ type: "success", message: "Profile saved to the database." });
+    } catch (err) {
+      setFeedback({ type: "error", message: err.message || "Could not reach the server." });
+    }
   };
 
   const handleCancel = () => {
@@ -165,6 +233,14 @@ export default function ProfilePage() {
   // BACKEND CONNECTION POINT:
   // Groupmates: Connect logout to the backend session or token
   // invalidation mechanism when implementing authentication.
+  const sessionUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("wmsu_user"));
+    } catch {
+      return null;
+    }
+  })();
+
   const handleLogout = () => {
     try {
       localStorage.removeItem("wmsu_user");
@@ -186,14 +262,6 @@ export default function ProfilePage() {
 
   return (
     <div className="profile_page">
-      {/* DEMO NOTICE BANNER */}
-      <div className="profile_demo_bar" role="status">
-        <span className="demo_pill">Frontend Demonstration</span>
-        <span>
-          Profile information is managed in client-side state. Permanent database updates will occur after backend integration.
-        </span>
-      </div>
-
       <main className="profile_main">
         {/* Loading / Error States */}
         {isLoading && (
@@ -239,12 +307,13 @@ export default function ProfilePage() {
             <div className="profile_header_details">
               <div className="profile_title_row">
                 <h1 className="profile_user_name">{fullName}</h1>
-                <span className="verified_badge">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <polyline points="20 6 9 17 4 12" />
-                  </svg>
-                  Verified Alum
-                </span>
+                {profile.status === "verified" ? (
+                  <span className="verified_badge">Verified Alum</span>
+                ) : (
+                  <span className="verified_badge" style={{ background: "#fff3cd", color: "#856404" }}>
+                    Pending Verification
+                  </span>
+                )}
               </div>
               <p className="profile_subtitle">
                 {profile.degree} &bull; Batch {profile.gradYear}
@@ -327,7 +396,9 @@ export default function ProfilePage() {
                 </div>
                 <div className="info_row">
                   <span className="info_label">Alumni Status</span>
-                  <span className="info_value badge_active">Active &bull; Verified Record</span>
+                  <span className="info_value badge_active">
+                    {profile.status === "verified" ? "Active \u2022 Verified Record" : "Awaiting admin verification"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -573,6 +644,14 @@ export default function ProfilePage() {
               </button>
             </div>
           </form>
+        )}
+
+        {/* CAREER AND EDUCATION HISTORY */}
+        {sessionUser && sessionUser.profile_id && !isLoading && !loadError && !isEditing && (
+          <div style={{ marginTop: 24 }}>
+            <CareerHistory profileId={sessionUser.profile_id} userId={sessionUser.id} canEdit />
+            <EducationHistory profileId={sessionUser.profile_id} userId={sessionUser.id} canEdit />
+          </div>
         )}
 
         {/* ACCOUNT SETTINGS / LOGOUT SECTION */}

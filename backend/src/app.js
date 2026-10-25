@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const authRoutes = require('./routes/auth');
 const alumniRoutes = require('./routes/alumni');
 const recordRoutes = require('./routes/records');
+const adminRoutes = require('./routes/admin');
 
 
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/alumni', alumniRoutes);
 app.use('/api', recordRoutes);
+app.use('/api', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });

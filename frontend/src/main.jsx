@@ -10,6 +10,11 @@ import ProfilePage from './ProfilePage.jsx';
 import Events from './EventList_page.jsx';
 import News from './NewsAndUpdates_page.jsx';
 import Navbar from './navbar.jsx';
+import DirectoryPage from './DirectoryPage.jsx';
+import AlumniDetail from './AlumniDetail.jsx';
+import RequireAdmin from './admin/Requireadmin.jsx';
+import AdminDashboard from './admin/Admindashboard.jsx';
+import AdminVerification from './admin/Adminverification.jsx';
 
 import './index.css';
 
@@ -24,6 +29,24 @@ createRoot(document.getElementById('root')).render(
         <Route path="/register" element={<Register />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/directory" element={<DirectoryPage />} />
+        <Route path="/alumni/:id" element={<AlumniDetail />} />
+        <Route
+          path="/admin"
+          element={
+            <RequireAdmin>
+              <AdminDashboard />
+            </RequireAdmin>
+          }
+        />
+        <Route
+          path="/admin/verification"
+          element={
+            <RequireAdmin>
+              <AdminVerification />
+            </RequireAdmin>
+          }
+        />
         <Route path="/Eventlist_page" element={<Events />} />
         <Route path="/events" element={<Events />} />
         <Route path="/NewsAndUpdates_page" element={<News />} />

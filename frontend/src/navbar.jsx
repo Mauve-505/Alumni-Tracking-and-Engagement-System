@@ -12,11 +12,18 @@ const UNAUTHENTICATED_LINKS = [
   { label: 'Login / Sign Up', href: '/login' },
 ];
 
+// Extra links shown only to administrators
+const ADMIN_LINKS = [
+  { label: 'Admin Dashboard', href: '/admin' },
+  { label: 'Verification', href: '/admin/verification' },
+];
+
 // Authenticated navigation items for logged-in alumni (Homepage, Profile)
 const AUTHENTICATED_LINKS = [
   { label: 'Home', href: '/home' },
   { label: 'News & Updates', href: '/NewsAndUpdates_page' },
   { label: 'Events', href: '/Eventlist_page' },
+  { label: 'Directory', href: '/directory' },
   { label: 'Profile', href: '/profile' },
 ];
 
@@ -31,15 +38,22 @@ export function Navbar() {
 
   // Determine if the current view should show authenticated navigation
   const isAuthenticated =
-    ['/home', '/profile'].includes(location.pathname) ||
+    ['/home', '/profile', '/directory', '/admin', '/admin/verification'].includes(location.pathname) ||
     Boolean(
       typeof window !== 'undefined' &&
         localStorage.getItem('wmsu_user') &&
         !['/login', '/register', '/'].includes(location.pathname)
     );
 
+  let isAdmin = false;
+  try {
+    isAdmin = JSON.parse(localStorage.getItem('wmsu_user'))?.role === 'admin';
+  } catch {
+    isAdmin = false;
+  }
+
   const activeLinks = isAuthenticated
-    ? AUTHENTICATED_LINKS
+    ? [...AUTHENTICATED_LINKS, ...(isAdmin ? ADMIN_LINKS : [])]
     : UNAUTHENTICATED_LINKS;
 
   // BACKEND CONNECTION POINT:

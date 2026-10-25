@@ -20,4 +20,18 @@ async function checkProfileAccess(profileId, requesterId) {
   return { ok: true };
 }
 
-module.exports = { checkProfileAccess };
+async function checkAdmin(requesterId) {
+  if (!requesterId) {
+    return { ok: false, status: 400, error: 'requester_id is required' };
+  }
+  const user = await pool.query('SELECT role FROM users WHERE id = $1', [requesterId]);
+  if (user.rows.length === 0) {
+    return { ok: false, status: 401, error: 'Unknown user' };
+  }
+  if (user.rows[0].role !== 'admin') {
+    return { ok: false, status: 403, error: 'Admin access only' };
+  }
+  return { ok: true };
+}
+
+module.exports = { checkProfileAccess, checkAdmin };

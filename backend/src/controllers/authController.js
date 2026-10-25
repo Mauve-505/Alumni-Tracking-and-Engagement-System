@@ -42,14 +42,22 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query(
+      `SELECT u.*, p.id AS profile_id
+       FROM users u
+       LEFT JOIN alumni_profiles p ON p.user_id = u.id
+       WHERE u.email = $1`,
+      [email]
+    );
     const user = result.rows[0];
 
     if (!user || !(await bcrypt.compare(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
-    res.json({ data: { id: user.id, email: user.email, role: user.role } });
+    res.json({
+      data: { id: user.id, email: user.email, role: user.role, profile_id: user.profile_id },
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
