@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './register.css';
@@ -18,6 +17,26 @@ const COUNTRY_CODES = [
   { code: '+86', label: 'CN +86' },
   { code: '+852', label: 'HK +852' },
   { code: '+91', label: 'IN +91' },
+];
+
+const COLLEGE_DEPARTMENTS = [
+  'College of Law',
+  'College of Agriculture',
+  'College of Liberal Arts',
+  'College of Architecture',
+  'College of Nursing',
+  'College of Asian & Islamic Studies',
+  'College of Computing Studies',
+  'College of Forestry & Environmental Studies',
+  'College of Criminal Justice Education',
+  'College of Home Economics',
+  'College of Engineering',
+  'College of Medicine',
+  'College of Public Administration & Development Studies',
+  'College of Sports Science & Physical Education',
+  'College of Science and Mathematics',
+  'College of Social Work & Community Development',
+  'College of Teacher Education',
 ];
 
 const API_URL =
@@ -72,6 +91,7 @@ function App() {
     username: '',
     email: '',
     phone: '',
+    collegeDepartment: '',
     password: '',
     confirmPassword: '',
   });
@@ -218,46 +238,58 @@ function App() {
             </label>
           </div>
 
-          <label>
-            Phone number
+          <div className="contact-row">
+            <label>
+              Phone number
 
-            <div className="phone-row">
+              <div className="phone-row">
+                <select
+                  name="countryCode"
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  aria-label="Country code"
+                >
+                  {COUNTRY_CODES.map((c) => (
+                    <option key={c.code} value={c.code}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  placeholder={isPH ? '9171234567' : 'Phone Number'}
+                  autoComplete="tel-national"
+                  inputMode="numeric"
+                  pattern={isPH ? '^9[0-9]{9}$' : '^[0-9]{6,12}$'}
+                  title={isPH
+                    ? 'Enter 10 digits starting with 9, without the leading 0 (e.g. 9171234567)'
+                    : 'Enter 6-12 digits without the country code'}
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </label>
+
+            <label>
+              College Department
               <select
-                name="countryCode"
-                value={countryCode}
-                onChange={(e) => setCountryCode(e.target.value)}
-                aria-label="Country code"
+                name="collegeDepartment"
+                value={formData.collegeDepartment}
+                onChange={handleChange}
+                required
               >
-                {COUNTRY_CODES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.label}
+                {COLLEGE_DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
                   </option>
                 ))}
               </select>
-
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                placeholder={isPH ? '9171234567' : 'Phone Number'}
-                autoComplete="tel-national"
-                inputMode="numeric"
-                pattern={
-                  isPH
-                    ? '^9[0-9]{9}$'
-                    : '^[0-9]{6,12}$'
-                }
-                title={
-                  isPH
-                    ? 'Enter 10 digits starting with 9, without the leading 0 (e.g. 9171234567)'
-                    : 'Enter 6-12 digits without the country code'
-                }
-                value={formData.phone}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </label>
+            </label>
+          </div>
 
           <div className="password-row">
             <label>
@@ -283,9 +315,7 @@ function App() {
                   type="button"
                   className="toggle-btn"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={
-                    showPassword ? 'Hide password' : 'Show password'
-                  }
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
@@ -313,11 +343,7 @@ function App() {
                   type="button"
                   className="toggle-btn"
                   onClick={() => setShowConfirm((prev) => !prev)}
-                  aria-label={
-                    showConfirm
-                      ? 'Hide confirm password'
-                      : 'Show confirm password'
-                  }
+                  aria-label={showConfirm ? 'Hide confirm password' : 'Show confirm password'}
                 >
                   {showConfirm ? 'Hide' : 'Show'}
                 </button>
@@ -325,8 +351,8 @@ function App() {
             </label>
           </div>
 
-          <button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Registering...' : 'Register'}
+          <button type="submit" onClick={() => navigate('/phase2register')}>
+            {isSubmitting ? 'Registering...' : 'Proceed'}
           </button>
         </form>
       </div>

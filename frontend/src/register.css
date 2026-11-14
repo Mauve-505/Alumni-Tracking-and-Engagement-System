@@ -20,8 +20,6 @@ body {
   overflow-x: hidden;
 }
 
-/* #root is exactly one screen tall (or taller only if the card needs it).
-   Everything inside it (navbar + page) stacks in a column. */
 #root {
   display: flex;
   flex-direction: column;
@@ -33,8 +31,6 @@ body {
   background-color: #ffffff;
 }
 
-/* .App takes whatever space #root has; it does NOT add its own 100dvh,
-   which is what was causing the extra scroll. */
 .App {
   display: flex;
   flex-direction: column;
@@ -45,11 +41,6 @@ body {
   background-color: #ffffff;
 }
 
-/* ==========================================================
-   MAIN AREA ON THE REGISTER PAGE
-   Applies automatically to any .layout_main that contains
-   .register, so main.jsx no longer needs the "centered" class.
-   ========================================================== */
 .App .layout_main:has(.register) {
   display: flex;
   flex: 1;
@@ -66,7 +57,7 @@ body {
 .register {
   width: calc(100% - 24px);
   max-width: 720px;
-  margin: auto; /* centers the card inside the flex main area */
+  margin: auto;
   padding: 28px 32px;
   border-radius: 20px;
   background-color: #ffffff;
@@ -80,7 +71,6 @@ body {
     color: #c93b33;
   }
 
-  /* intro text under the title */
   > p {
     font-size: 0.9rem;
     line-height: 1.4;
@@ -88,7 +78,6 @@ body {
     color: #666;
   }
 
-  /* ----- Form ----- */
   form {
     display: flex;
     flex-direction: column;
@@ -98,14 +87,19 @@ body {
   /* fields that share a row */
   .name-row,
   .account-row,
-  .password-row {
+  .password-row,
+  .contact-row {
     display: grid;
     gap: 14px;
   }
 
-  /* first name | tiny middle initial | last name */
   .name-row {
     grid-template-columns: 1fr 64px 1fr;
+  }
+
+  /* phone number | college department */
+  .contact-row {
+    grid-template-columns: 1fr 1fr;
   }
 
   .initial input {
@@ -113,7 +107,6 @@ body {
     text-align: center;
   }
 
-  /* username | email  and  password | confirm password */
   .account-row,
   .password-row {
     grid-template-columns: 1fr 1fr;
@@ -151,13 +144,11 @@ body {
       box-shadow: 0 0 0 3px rgba(201, 59, 51, 0.2);
     }
 
-    /* red border only after the user has typed something invalid */
     &:invalid:not(:placeholder-shown) {
       border-color: #e53935;
     }
   }
 
-  /* ----- Show/Hide password toggle (sits inside the input) ----- */
   .input-wrap {
     position: relative;
 
@@ -184,7 +175,6 @@ body {
     }
   }
 
-  /* ----- Country code + phone number ----- */
   .phone-row {
     display: flex;
     gap: 10px;
@@ -200,7 +190,6 @@ body {
     }
   }
 
-  /* ----- Register (submit) button ----- */
   button[type="submit"] {
     margin-top: 6px;
     padding: 12px 14px;
@@ -229,7 +218,8 @@ body {
 
     .name-row,
     .account-row,
-    .password-row {
+    .password-row,
+    .contact-row {
       grid-template-columns: 1fr;
     }
   }

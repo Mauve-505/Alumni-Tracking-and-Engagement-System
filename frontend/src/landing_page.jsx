@@ -4,6 +4,7 @@ import events from './assets/events.png';
 // import merch from './assets/merch.png';
 import banner from './assets/wmsu_school_picture.jpg';
 import logo from './assets/wmsu-logo.png';
+import star from './assets/star.png';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -46,6 +47,17 @@ export default function App() {
         <span className="highlights_label">What's happening</span>
 
         <div className="cards">
+
+<div className="card spotlight">
+  <div className="card_icon">
+    <img src={star} alt="" />
+  </div>
+  <h3>Spotlight</h3>
+  <p>Another WMSU alumni has achieved great success.
+    <br />
+  Mr. John Doe graduate from the College of Computing Studies has been recognized for his outstanding contributions to the field of computer science.</p>
+</div>
+
           <button
             className={`card news ${active === 'news' ? 'active' : ''}`}
             onClick={() => setActive('news')}
