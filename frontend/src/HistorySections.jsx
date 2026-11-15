@@ -18,7 +18,12 @@ async function request(url, options) {
 function blankForm(fields) {
   const form = {};
   fields.forEach((f) => {
-    form[f.name] = f.type === "checkbox" ? false : "";
+    if (f.type === "institution") {
+      form.institution_id = ""; // "" = nothing chosen, "other" = typed name, otherwise an id
+      form.institution = "";
+    } else {
+      form[f.name] = f.type === "checkbox" ? false : "";
+    }
   });
   return form;
 }
@@ -27,7 +32,10 @@ function formFromItem(fields, item) {
   const form = {};
   fields.forEach((f) => {
     const value = item[f.name];
-    if (f.type === "checkbox") form[f.name] = !!value;
+    if (f.type === "institution") {
+      form.institution_id = item.institution_id ? String(item.institution_id) : item.institution ? "other" : "";
+      form.institution = item.institution_id ? "" : item.institution || "";
+    } else if (f.type === "checkbox") form[f.name] = !!value;
     else if (f.type === "date") form[f.name] = value ? String(value).slice(0, 10) : "";
     else form[f.name] = value ?? "";
   });
@@ -38,7 +46,14 @@ function payloadFromForm(fields, form) {
   const payload = {};
   fields.forEach((f) => {
     const value = form[f.name];
-    if (f.type === "checkbox") payload[f.name] = !!value;
+    if (f.type === "institution") {
+      if (form.institution_id && form.institution_id !== "other") {
+        payload.institution_id = Number(form.institution_id);
+      } else {
+        payload.institution_id = null;
+        payload.institution = String(form.institution).trim() || null;
+      }
+    } else if (f.type === "checkbox") payload[f.name] = !!value;
     else if (f.type === "number") payload[f.name] = value === "" ? null : Number(value);
     else payload[f.name] = String(value).trim() === "" ? null : String(value).trim();
   });
@@ -53,6 +68,16 @@ function RecordSection({ title, path, fields, profileId, userId, canEdit, emptyT
   const [form, setForm] = useState(blankForm(fields));
   const [saving, setSaving] = useState(false);
   const [version, setVersion] = useState(0);
+  const [institutions, setInstitutions] = useState([]);
+  const hasInstitutionField = fields.some((f) => f.type === "institution");
+
+  // The university dropdown comes from the database
+  useEffect(() => {
+    if (!hasInstitutionField) return;
+    request(`${API_URL}/api/institutions`)
+      .then(setInstitutions)
+      .catch(() => setInstitutions([]));
+  }, [hasInstitutionField]);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,6 +126,17 @@ function RecordSection({ title, path, fields, profileId, userId, canEdit, emptyT
     e.preventDefault();
 
     for (const f of fields) {
+      if (f.type === "institution") {
+        if (f.required && !form.institution_id) {
+          setError(`${f.label} is required.`);
+          return;
+        }
+        if (form.institution_id === "other" && String(form.institution).trim() === "") {
+          setError("Please type the institution name.");
+          return;
+        }
+        continue;
+      }
       if (f.required && String(form[f.name]).trim() === "") {
         setError(`${f.label} is required.`);
         return;
@@ -152,7 +188,50 @@ function RecordSection({ title, path, fields, profileId, userId, canEdit, emptyT
       {editingId !== null && (
         <form className="hist_form" onSubmit={handleSubmit}>
           {fields.map((f) =>
-            f.type === "checkbox" ? (
+            f.type === "institution" ? (
+              <div key={f.name} className="hist_field">
+                <label htmlFor={`${path}_institution_id`}>
+                  {f.label}
+                  {f.required && <span className="hist_req"> *</span>}
+                </label>
+                <select
+                  id={`${path}_institution_id`}
+                  name="institution_id"
+                  value={form.institution_id}
+                  onChange={handleChange}
+                >
+                  <option value="">Select a university</option>
+                  {institutions.map((i) => (
+                    <option key={i.id} value={i.id}>
+                      {i.name}
+                    </option>
+                  ))}
+                  <option value="other">Other (type the name)</option>
+                </select>
+                {form.institution_id === "other" && (
+                  <input
+                    type="text"
+                    name="institution"
+                    value={form.institution}
+                    onChange={handleChange}
+                    placeholder={f.placeholder || ""}
+                    style={{ marginTop: 8 }}
+                  />
+                )}
+              </div>
+            ) : f.type === "select" ? (
+              <div key={f.name} className="hist_field">
+                <label htmlFor={`${path}_${f.name}`}>{f.label}</label>
+                <select id={`${path}_${f.name}`} name={f.name} value={form[f.name]} onChange={handleChange}>
+                  <option value="">Select {f.label.toLowerCase()}</option>
+                  {f.options.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : f.type === "checkbox" ? (
               <label key={f.name} className="hist_check">
                 <input type="checkbox" name={f.name} checked={form[f.name]} onChange={handleChange} />
                 {f.label}
@@ -222,8 +301,18 @@ const EMPLOYMENT_FIELDS = [
   { name: "is_current", label: "I currently work here", type: "checkbox" },
 ];
 
+const LEVEL_OPTIONS = [
+  { value: "certificate", label: "Certificate" },
+  { value: "diploma", label: "Diploma" },
+  { value: "bachelors", label: "Bachelor's" },
+  { value: "masters", label: "Master's" },
+  { value: "doctorate", label: "Doctorate" },
+  { value: "short_course", label: "Short course" },
+];
+
 const EDUCATION_FIELDS = [
-  { name: "institution", label: "Institution", type: "text", required: true, placeholder: "e.g. Ateneo de Zamboanga University" },
+  { name: "institution", label: "Institution", type: "institution", required: true, placeholder: "Type the institution name" },
+  { name: "level", label: "Level", type: "select", options: LEVEL_OPTIONS },
   { name: "degree", label: "Degree / Program", type: "text", placeholder: "e.g. Master of Information Technology" },
   { name: "year", label: "Year", type: "number", placeholder: "e.g. 2025" },
 ];
@@ -269,7 +358,11 @@ export function EducationHistory(props) {
       renderItem={(edu) => (
         <>
           <strong>{edu.institution}</strong>
-          <div className="hist_meta">{[edu.degree, edu.year].filter(Boolean).join(" • ")}</div>
+          <div className="hist_meta">
+            {[LEVEL_OPTIONS.find((l) => l.value === edu.level)?.label, edu.degree, edu.year]
+              .filter(Boolean)
+              .join(" • ")}
+          </div>
         </>
       )}
     />

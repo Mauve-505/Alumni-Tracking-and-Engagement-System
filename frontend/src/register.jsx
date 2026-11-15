@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './register.css';
+import { COLLEGES as COLLEGE_DEPARTMENTS } from './colleges.js';
 
 const COUNTRY_CODES = [
   { code: '+63', label: 'PH +63' },
@@ -17,26 +18,6 @@ const COUNTRY_CODES = [
   { code: '+86', label: 'CN +86' },
   { code: '+852', label: 'HK +852' },
   { code: '+91', label: 'IN +91' },
-];
-
-const COLLEGE_DEPARTMENTS = [
-  'College of Law',
-  'College of Agriculture',
-  'College of Liberal Arts',
-  'College of Architecture',
-  'College of Nursing',
-  'College of Asian & Islamic Studies',
-  'College of Computing Studies',
-  'College of Forestry & Environmental Studies',
-  'College of Criminal Justice Education',
-  'College of Home Economics',
-  'College of Engineering',
-  'College of Medicine',
-  'College of Public Administration & Development Studies',
-  'College of Sports Science & Physical Education',
-  'College of Science and Mathematics',
-  'College of Social Work & Community Development',
-  'College of Teacher Education',
 ];
 
 const API_URL =

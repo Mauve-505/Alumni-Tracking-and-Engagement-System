@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./DirectoryPage.css";
+import { COLLEGES, EMPLOYMENT_STATUSES, employmentLabel } from "./colleges.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-const EMPTY_FILTERS = { name: "", year: "", program: "", status: "" };
+const EMPTY_FILTERS = { name: "", year: "", program: "", college: "", employment_status: "" };
 
 export default function DirectoryPage() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -76,10 +77,21 @@ export default function DirectoryPage() {
             value={filters.program}
             onChange={handleChange}
           />
-          <select name="status" value={filters.status} onChange={handleChange}>
-            <option value="">All statuses</option>
-            <option value="verified">Verified</option>
-            <option value="pending">Pending</option>
+          <select name="college" value={filters.college} onChange={handleChange}>
+            <option value="">All colleges</option>
+            {COLLEGES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+          <select name="employment_status" value={filters.employment_status} onChange={handleChange}>
+            <option value="">Any employment status</option>
+            {EMPLOYMENT_STATUSES.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label}
+              </option>
+            ))}
           </select>
           <button type="button" className="dir_clear" onClick={() => setFilters(EMPTY_FILTERS)}>
             Clear
@@ -96,7 +108,15 @@ export default function DirectoryPage() {
           {alumni.map((a) => (
             <Link key={a.id} to={`/alumni/${a.id}`} className="dir_card">
               <div className="dir_avatar">
-                {`${a.first_name?.[0] || ""}${a.last_name?.[0] || ""}`.toUpperCase()}
+                {a.photo_url ? (
+                  <img
+                    src={`${API_URL}${a.photo_url}`}
+                    alt=""
+                    style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+                  />
+                ) : (
+                  `${a.first_name?.[0] || ""}${a.last_name?.[0] || ""}`.toUpperCase()
+                )}
               </div>
               <div className="dir_info">
                 <h2>
@@ -106,15 +126,15 @@ export default function DirectoryPage() {
                   {[a.program, a.graduation_year && `Batch ${a.graduation_year}`].filter(Boolean).join(" • ") ||
                     "Program not set"}
                 </p>
+                {a.college && <p>{a.college}</p>}
+                {a.employment_status && <p>{employmentLabel(a.employment_status)}</p>}
                 {a.current_position && (
                   <p className="dir_job">
                     {a.current_position}
                     {a.current_company ? ` at ${a.current_company}` : ""}
                   </p>
                 )}
-                <span className={`dir_status ${a.status}`}>
-                  {a.status === "verified" ? "Verified" : "Pending"}
-                </span>
+                <span className="dir_status verified">Verified</span>
               </div>
             </Link>
           ))}

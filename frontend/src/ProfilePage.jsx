@@ -3,24 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./ProfilePage.css";
 import logo from "./assets/wmsu-logo.png";
 import { CareerHistory, EducationHistory } from "./HistorySections.jsx";
-
-// List of official WMSU colleges for the dropdown
-const WMSU_COLLEGES = [
-  "College of Science and Mathematics",
-  "College of Engineering",
-  "College of Computing Studies",
-  "College of Teacher Education",
-  "College of Nursing",
-  "College of Liberal Arts",
-  "College of Agriculture",
-  "College of Architecture",
-  "College of Criminal Justice Education",
-  "College of Home Economics",
-  "College of Public Administration and Development Studies",
-  "College of Social Work and Community Development",
-  "College of Law",
-  "College of Medicine",
-];
+import { COLLEGES as WMSU_COLLEGES, EMPLOYMENT_STATUSES, employmentLabel } from "./colleges.js";
 
 // Baseline demonstration profile data if not present in browser storage
 const DEFAULT_PROFILE = {
@@ -64,9 +47,21 @@ function fromApi(data, extras) {
     status: data.status || "pending",
     alumniId: `WMSU-${data.graduation_year || "0000"}-${String(data.id).padStart(4, "0")}`,
     middleInitial: extras.middleInitial || "",
-    college: extras.college || WMSU_COLLEGES[0],
+    college: data.college || extras.college || "",
+    employmentStatus: data.employment_status || "",
+    photoUrl: data.photo_url || "",
+    rejectionReason: data.rejection_reason || "",
+    hasCertificate: !!data.has_certificate,
     avatarTheme: extras.avatarTheme || "crimson",
   };
+}
+
+function getUser() {
+  try {
+    return JSON.parse(localStorage.getItem("wmsu_user"));
+  } catch {
+    return null;
+  }
 }
 
 export default function ProfilePage() {
@@ -193,6 +188,8 @@ export default function ProfilePage() {
           program: draft.degree,
           phone: draft.phone,
           bio: draft.bio,
+          college: draft.college || null,
+          employment_status: draft.employmentStatus || null,
         }),
       });
       const result = await res.json();
@@ -210,7 +207,15 @@ export default function ProfilePage() {
         // Storage unavailable
       }
 
-      const saved = fromApi({ ...result.data, email: draft.email }, extras);
+      const saved = fromApi(
+        {
+          ...result.data,
+          email: draft.email,
+          rejection_reason: profile.rejectionReason,
+          has_certificate: profile.hasCertificate,
+        },
+        extras
+      );
       setProfile(saved);
       setDraft(saved);
       setIsEditing(false);
@@ -228,6 +233,70 @@ export default function ProfilePage() {
       type: "info",
       message: "Profile editing was cancelled. Unsaved changes were discarded.",
     });
+  };
+
+  // Upload a profile photo (the file itself is the request body)
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setFeedback({ type: "error", message: "That photo is too large. The maximum is 5 MB." });
+      return;
+    }
+    const user = getUser();
+    if (!user || !user.profile_id) {
+      setFeedback({ type: "error", message: "Please log in again to change your photo." });
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${API_URL}/api/alumni/${user.profile_id}/photo?requester_id=${user.id}`,
+        { method: "POST", body: file }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Photo upload failed.");
+      setProfile((p) => ({ ...p, photoUrl: result.data.photo_url }));
+      setDraft((d) => ({ ...d, photoUrl: result.data.photo_url }));
+      setFeedback({ type: "success", message: "Profile photo updated." });
+    } catch (err) {
+      setFeedback({ type: "error", message: err.message || "Could not reach the server." });
+    }
+  };
+
+  // Upload (or replace) the graduation certificate; a rejected profile goes back to pending
+  const handleCertificateChange = async (e) => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setFeedback({ type: "error", message: "That file is too large. The maximum is 5 MB." });
+      return;
+    }
+    const user = getUser();
+    if (!user || !user.profile_id) {
+      setFeedback({ type: "error", message: "Please log in again to upload your certificate." });
+      return;
+    }
+    try {
+      const res = await fetch(
+        `${API_URL}/api/alumni/${user.profile_id}/certificate?requester_id=${user.id}`,
+        { method: "POST", body: file }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Certificate upload failed.");
+      const update = (p) => ({
+        ...p,
+        hasCertificate: true,
+        rejectionReason: "",
+        status: p.status === "rejected" ? "pending" : p.status,
+      });
+      setProfile(update);
+      setDraft(update);
+      setFeedback({ type: "success", message: "Certificate uploaded. An administrator will review it." });
+    } catch (err) {
+      setFeedback({ type: "error", message: err.message || "Could not reach the server." });
+    }
   };
 
   // BACKEND CONNECTION POINT:
@@ -301,7 +370,15 @@ export default function ProfilePage() {
                 Groupmates: Connect profile-picture retrieval and upload to the
                 backend or approved file-storage service in the future. */}
             <div className={`profile_avatar_circle ${profile.avatarTheme || "crimson"}`}>
-              <span>{avatarInitials}</span>
+              {profile.photoUrl ? (
+                <img
+                  src={`${API_URL}${profile.photoUrl}`}
+                  alt=""
+                  style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+                />
+              ) : (
+                <span>{avatarInitials}</span>
+              )}
             </div>
 
             <div className="profile_header_details">
@@ -309,6 +386,10 @@ export default function ProfilePage() {
                 <h1 className="profile_user_name">{fullName}</h1>
                 {profile.status === "verified" ? (
                   <span className="verified_badge">Verified Alum</span>
+                ) : profile.status === "rejected" ? (
+                  <span className="verified_badge" style={{ background: "#f8d7da", color: "#842029" }}>
+                    Verification Rejected
+                  </span>
                 ) : (
                   <span className="verified_badge" style={{ background: "#fff3cd", color: "#856404" }}>
                     Pending Verification
@@ -320,6 +401,15 @@ export default function ProfilePage() {
               </p>
               <p className="profile_college_name">{profile.college}</p>
               <span className="alumni_id_tag">ID: {profile.alumniId}</span>
+              <label style={{ marginTop: 8, fontSize: 13, cursor: "pointer", color: "#a51f2b", textDecoration: "underline" }}>
+                {profile.photoUrl ? "Change photo" : "Upload photo"}
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handlePhotoChange}
+                  style={{ display: "none" }}
+                />
+              </label>
             </div>
           </div>
 
@@ -361,6 +451,38 @@ export default function ProfilePage() {
           </div>
         </section>
 
+        {/* VERIFICATION NOTICE (only until the account is verified) */}
+        {profile.status !== "verified" && !isLoading && !loadError && (
+          <div
+            className={`profile_feedback_banner ${profile.status === "rejected" ? "error" : "info"}`}
+            style={{ display: "block" }}
+          >
+            {profile.status === "rejected" ? (
+              <p>
+                <strong>Your verification was rejected.</strong>
+                {profile.rejectionReason ? ` Reason: ${profile.rejectionReason}.` : ""} Upload a new
+                certificate to ask for another review.
+              </p>
+            ) : (
+              <p>
+                <strong>Your account is pending.</strong>{" "}
+                {profile.hasCertificate
+                  ? "An administrator is reviewing your certificate."
+                  : "Upload your graduation certificate so an administrator can verify you."}
+              </p>
+            )}
+            <label style={{ cursor: "pointer", textDecoration: "underline" }}>
+              {profile.hasCertificate ? "Replace certificate" : "Upload certificate"} (image or PDF, max 5 MB)
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,application/pdf"
+                onChange={handleCertificateChange}
+                style={{ display: "none" }}
+              />
+            </label>
+          </div>
+        )}
+
         {/* PROFILE BODY SECTION */}
         {/* BACKEND CONNECTION POINT:
             Groupmates: Retrieve the authenticated user's profile information
@@ -389,6 +511,10 @@ export default function ProfilePage() {
                 <div className="info_row">
                   <span className="info_label">Year Graduated</span>
                   <span className="info_value">{profile.gradYear || "Not specified"}</span>
+                </div>
+                <div className="info_row">
+                  <span className="info_label">Employment Status</span>
+                  <span className="info_value">{employmentLabel(profile.employmentStatus)}</span>
                 </div>
                 <div className="info_row">
                   <span className="info_label">Alumni Identifier</span>
@@ -562,6 +688,24 @@ export default function ProfilePage() {
                   {WMSU_COLLEGES.map((c) => (
                     <option key={c} value={c}>
                       {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Employment status */}
+              <div className="form_group">
+                <label htmlFor="employmentStatus">Employment Status</label>
+                <select
+                  id="employmentStatus"
+                  name="employmentStatus"
+                  value={draft.employmentStatus}
+                  onChange={handleChange}
+                >
+                  <option value="">Select status</option>
+                  {EMPLOYMENT_STATUSES.map((st) => (
+                    <option key={st.value} value={st.value}>
+                      {st.label}
                     </option>
                   ))}
                 </select>

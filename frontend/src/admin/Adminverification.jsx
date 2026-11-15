@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import "./Admin.css";
+import { employmentLabel } from "../colleges.js";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -13,30 +14,20 @@ function getSessionUser() {
   }
 }
 
-export default function AdminVerification() {
-  const [tab, setTab] = useState("pending"); // "pending" | "verified"
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function AdminDashboard() {
+  const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
-  const [message, setMessage] = useState(null);
-  const [busyId, setBusyId] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const user = getSessionUser();
     let cancelled = false;
-    setLoading(true);
-    setError(null);
 
-    const url =
-      tab === "pending"
-        ? `${API_URL}/api/admin/pending?requester_id=${user.id}`
-        : `${API_URL}/api/alumni?status=verified`;
-
-    fetch(url)
+    fetch(`${API_URL}/api/admin/dashboard?requester_id=${user.id}`)
       .then(async (res) => {
         const result = await res.json();
-        if (!res.ok) throw new Error(result.error || "Failed to load alumni.");
-        if (!cancelled) setRows(result.data);
+        if (!res.ok) throw new Error(result.error || "Failed to load dashboard.");
+        if (!cancelled) setStats(result.data);
       })
       .catch((err) => {
         if (!cancelled) setError(err.message || "Could not reach the server.");
@@ -48,117 +39,161 @@ export default function AdminVerification() {
     return () => {
       cancelled = true;
     };
-  }, [tab]);
+  }, []);
 
-  const changeStatus = async (alum, status) => {
-    const user = getSessionUser();
-    setBusyId(alum.id);
-    setError(null);
-    setMessage(null);
-    try {
-      const res = await fetch(`${API_URL}/api/alumni/${alum.id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ requester_id: user.id, status }),
-      });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Failed to update status.");
-
-      setRows((prev) => prev.filter((r) => r.id !== alum.id));
-      setMessage(
-        status === "verified"
-          ? `${alum.first_name} ${alum.last_name} is now verified.`
-          : `${alum.first_name} ${alum.last_name} was set back to pending.`
-      );
-    } catch (err) {
-      setError(err.message || "Could not reach the server.");
-    } finally {
-      setBusyId(null);
-    }
-  };
+  const maxPerYear = stats ? Math.max(1, ...stats.alumni_per_year.map((y) => y.count)) : 1;
 
   return (
     <div className="adm_page">
       <main className="adm_main">
         <p className="adm_eyebrow">Admin</p>
-        <h1 className="adm_title">Alumni Verification</h1>
+        <h1 className="adm_title">Admin Dashboard</h1>
 
         <nav className="adm_tabs">
-          <Link to="/admin" className="adm_tab">Dashboard</Link>
-          <Link to="/admin/verification" className="adm_tab active">Verification</Link>
+          <Link to="/admin" className="adm_tab active">Dashboard</Link>
+          <Link to="/admin/verification" className="adm_tab">Verification</Link>
         </nav>
 
-        <div className="adm_switch">
-          <button
-            type="button"
-            className={tab === "pending" ? "active" : ""}
-            onClick={() => {
-              setTab("pending");
-              setMessage(null);
-            }}
-          >
-            Pending
-          </button>
-          <button
-            type="button"
-            className={tab === "verified" ? "active" : ""}
-            onClick={() => {
-              setTab("verified");
-              setMessage(null);
-            }}
-          >
-            Verified
-          </button>
-        </div>
-
-        {message && <p className="adm_success">{message}</p>}
+        {loading && <p className="adm_muted">Loading dashboard...</p>}
         {error && <p className="adm_error">{error}</p>}
-        {loading && <p className="adm_muted">Loading...</p>}
-        {!loading && !error && rows.length === 0 && (
-          <p className="adm_muted">
-            {tab === "pending" ? "No profiles are waiting for verification." : "No verified alumni yet."}
-          </p>
-        )}
 
-        <div className="adm_rows">
-          {rows.map((a) => (
-            <div key={a.id} className="adm_row">
-              <div className="adm_row_info">
-                <strong>
-                  {a.first_name} {a.last_name}
-                </strong>
-                <span className="adm_meta">
-                  {[a.email, a.program, a.graduation_year && `Batch ${a.graduation_year}`].filter(Boolean).join(" • ") ||
-                    "No details yet"}
-                </span>
+        {stats && (
+          <>
+            <section className="adm_stats">
+              <div className="adm_stat">
+                <span>Total Alumni</span>
+                <strong>{stats.total_alumni}</strong>
               </div>
-              <div className="adm_row_actions">
-                <Link to={`/alumni/${a.id}`} className="adm_btn">
-                  View
-                </Link>
-                {tab === "pending" ? (
-                  <button
-                    type="button"
-                    className="adm_btn primary"
-                    disabled={busyId === a.id}
-                    onClick={() => changeStatus(a, "verified")}
-                  >
-                    {busyId === a.id ? "Saving..." : "Verify"}
-                  </button>
+              <div className="adm_stat">
+                <span>Verified</span>
+                <strong>{stats.verified}</strong>
+              </div>
+              <div className="adm_stat">
+                <span>Pending</span>
+                <strong>{stats.pending}</strong>
+              </div>
+              <div className="adm_stat">
+                <span>Rejected</span>
+                <strong>{stats.rejected ?? 0}</strong>
+              </div>
+              <div className="adm_stat">
+                <span>Employment Rate</span>
+                <strong>{stats.employment_rate}%</strong>
+              </div>
+              <div className="adm_stat">
+                <span>Upcoming Events</span>
+                <strong>{stats.upcoming_events}</strong>
+              </div>
+              <div className="adm_stat">
+                <span>Posts</span>
+                <strong>{stats.total_posts}</strong>
+              </div>
+            </section>
+
+            <section className="adm_columns">
+              <div className="adm_card">
+                <h2>Recent registrations</h2>
+                {stats.recent_signups.length === 0 ? (
+                  <p className="adm_muted">No registrations yet.</p>
                 ) : (
-                  <button
-                    type="button"
-                    className="adm_btn danger"
-                    disabled={busyId === a.id}
-                    onClick={() => changeStatus(a, "pending")}
-                  >
-                    {busyId === a.id ? "Saving..." : "Revoke"}
-                  </button>
+                  <ul className="adm_list">
+                    {stats.recent_signups.map((a) => (
+                      <li key={a.id}>
+                        <Link to={`/alumni/${a.id}`}>
+                          {a.first_name} {a.last_name}
+                        </Link>
+                        <span className="adm_meta">
+                          {a.program || "No program yet"}
+                        </span>
+                        <span className={`adm_pill ${a.status}`}>{a.status}</span>
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
-            </div>
-          ))}
-        </div>
+
+              <div className="adm_card">
+                <h2>Quick actions</h2>
+                <ul className="adm_links">
+                  <li>
+                    <Link to="/admin/verification">
+                      Review pending profiles
+                      {stats.pending > 0 && <span className="adm_count">{stats.pending}</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/directory">Open alumni directory</Link>
+                  </li>
+                </ul>
+              </div>
+            </section>
+
+            <section className="adm_card">
+              <h2>Alumni per graduation year</h2>
+              {stats.alumni_per_year.length === 0 ? (
+                <p className="adm_muted">No graduation years recorded yet.</p>
+              ) : (
+                <div className="adm_bars">
+                  {stats.alumni_per_year.map((y) => (
+                    <div key={y.year} className="adm_bar_row">
+                      <span className="adm_bar_label">{y.year}</span>
+                      <div className="adm_bar_track">
+                        <div className="adm_bar_fill" style={{ width: `${(y.count / maxPerYear) * 100}%` }} />
+                      </div>
+                      <span className="adm_bar_count">{y.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="adm_card">
+              <h2>Alumni by college</h2>
+              {!stats.by_college || stats.by_college.length === 0 ? (
+                <p className="adm_muted">No alumni yet.</p>
+              ) : (
+                <div className="adm_bars">
+                  {stats.by_college.map((c) => (
+                    <div key={c.college} className="adm_bar_row">
+                      <span className="adm_bar_label" style={{ minWidth: 220 }}>{c.college}</span>
+                      <div className="adm_bar_track">
+                        <div
+                          className="adm_bar_fill"
+                          style={{ width: `${(c.count / Math.max(1, ...stats.by_college.map((x) => x.count))) * 100}%` }}
+                        />
+                      </div>
+                      <span className="adm_bar_count">{c.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="adm_card">
+              <h2>Employment status</h2>
+              {!stats.by_employment_status || stats.by_employment_status.length === 0 ? (
+                <p className="adm_muted">No alumni yet.</p>
+              ) : (
+                <div className="adm_bars">
+                  {stats.by_employment_status.map((e) => (
+                    <div key={e.employment_status} className="adm_bar_row">
+                      <span className="adm_bar_label" style={{ minWidth: 220 }}>
+                        {e.employment_status === "not_specified" ? "Not specified" : employmentLabel(e.employment_status)}
+                      </span>
+                      <div className="adm_bar_track">
+                        <div
+                          className="adm_bar_fill"
+                          style={{ width: `${(e.count / Math.max(1, ...stats.by_employment_status.map((x) => x.count))) * 100}%` }}
+                        />
+                      </div>
+                      <span className="adm_bar_count">{e.count}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          </>
+        )}
       </main>
     </div>
   );
