@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProfilePage.css";
 import logo from "./assets/wmsu-logo.png";
@@ -66,6 +66,9 @@ function getUser() {
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+
+  // Hidden file input that the profile picture button clicks
+  const photoInputRef = useRef(null);
 
   // BACKEND CONNECTION POINT:
   // Groupmates: Connect these frontend states to the actual loading,
@@ -366,19 +369,40 @@ export default function ProfilePage() {
         {/* PROFILE HEADER CARD */}
         <section className="profile_header_card">
           <div className="profile_header_left">
-            {/* BACKEND CONNECTION POINT:
-                Groupmates: Connect profile-picture retrieval and upload to the
-                backend or approved file-storage service in the future. */}
-            <div className={`profile_avatar_circle ${profile.avatarTheme || "crimson"}`}>
-              {profile.photoUrl ? (
-                <img
-                  src={`${API_URL}${profile.photoUrl}`}
-                  alt=""
-                  style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
-                />
-              ) : (
-                <span>{avatarInitials}</span>
-              )}
+            {/* Profile picture with an add/change button */}
+            <div className="profile_avatar_wrap">
+              <div className={`profile_avatar_circle ${profile.avatarTheme || "crimson"}`}>
+                {profile.photoUrl ? (
+                  <img
+                    src={`${API_URL}${profile.photoUrl}`}
+                    alt=""
+                    style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <span>{avatarInitials}</span>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="avatar_camera_btn"
+                onClick={() => photoInputRef.current && photoInputRef.current.click()}
+                aria-label={profile.photoUrl ? "Change profile photo" : "Add profile photo"}
+                title={profile.photoUrl ? "Change photo" : "Add photo"}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </button>
+
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={handlePhotoChange}
+                style={{ display: "none" }}
+              />
             </div>
 
             <div className="profile_header_details">
@@ -401,15 +425,6 @@ export default function ProfilePage() {
               </p>
               <p className="profile_college_name">{profile.college}</p>
               <span className="alumni_id_tag">ID: {profile.alumniId}</span>
-              <label style={{ marginTop: 8, fontSize: 13, cursor: "pointer", color: "#a51f2b", textDecoration: "underline" }}>
-                {profile.photoUrl ? "Change photo" : "Upload photo"}
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  onChange={handlePhotoChange}
-                  style={{ display: "none" }}
-                />
-              </label>
             </div>
           </div>
 
