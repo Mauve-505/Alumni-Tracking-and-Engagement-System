@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import './navbar.css';
 import logo from './assets/wmsu-logo.png';
-import menu from './assets/menu-dots.png';
+import menu from './assets/menu.png';
 
 // Navigation links for unauthenticated visitors (Landing, Login, Register)
 const UNAUTHENTICATED_LINKS = [
@@ -106,7 +106,7 @@ export function Navbar() {
           aria-label="Menu"
           aria-expanded={open}
         >
-          <img src={menu} alt="" />
+          <img src={menu} alt="Menu" />
         </button>
 
         {open && (
