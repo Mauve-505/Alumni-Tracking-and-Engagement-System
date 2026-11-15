@@ -12,6 +12,8 @@ import News from './NewsAndUpdates_page.jsx';
 import Navbar from './navbar.jsx';
 import DirectoryPage from './DirectoryPage.jsx';
 import AlumniDetail from './AlumniDetail.jsx';
+import Phase2Register from './phase2register.jsx';
+import Phase3Register from './phase3register.jsx';
 import RequireAdmin from './admin/Requireadmin.jsx';
 import AdminDashboard from './admin/Admindashboard.jsx';
 import AdminVerification from './admin/Adminverification.jsx';
@@ -27,6 +29,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/phase2register" element={<Phase2Register />} />
+        <Route path="/phase3register" element={<Phase3Register />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/directory" element={<DirectoryPage />} />

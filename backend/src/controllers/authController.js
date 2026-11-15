@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 
 exports.register = async (req, res) => {
-  const { email, password, first_name, last_name } = req.body;
+  const { email, password, first_name, last_name, college } = req.body;
 
   if (
     typeof email !== 'string' || !email.trim() ||
@@ -34,9 +34,10 @@ exports.register = async (req, res) => {
     const user = userResult.rows[0];
 
     const profileResult = await client.query(
-      `INSERT INTO alumni_profiles (user_id, first_name, last_name)
-       VALUES ($1, $2, $3) RETURNING id`,
-      [user.id, first_name.trim(), last_name.trim()]
+      `INSERT INTO alumni_profiles (user_id, first_name, last_name, college)
+       VALUES ($1, $2, $3, $4) RETURNING id`,
+      [user.id, first_name.trim(), last_name.trim(),
+       typeof college === 'string' && college.trim() ? college.trim() : null]
     );
 
     await client.query('COMMIT');

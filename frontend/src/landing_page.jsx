@@ -4,7 +4,6 @@ import events from './assets/events.png';
 // import merch from './assets/merch.png';
 import banner from './assets/wmsu_school_picture.jpg';
 import logo from './assets/wmsu-logo.png';
-import star from './assets/star.png';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -50,7 +49,7 @@ export default function App() {
 
 <div className="card spotlight">
   <div className="card_icon">
-    <img src={star} alt="" />
+    <span role="img" aria-label="star" style={{ fontSize: '2rem' }}>⭐</span>
   </div>
   <h3>Spotlight</h3>
   <p>Another WMSU alumni has achieved great success.

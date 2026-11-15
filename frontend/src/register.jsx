@@ -47,6 +47,7 @@ async function registerUser({
   password,
   first_name,
   last_name,
+  college,
 }) {
   const response = await fetch(`${API_URL}/api/auth/register`, {
     method: 'POST',
@@ -58,6 +59,7 @@ async function registerUser({
       password,
       first_name,
       last_name,
+      college,
     }),
   });
 
@@ -74,6 +76,20 @@ async function registerUser({
   }
 
   return result.data;
+}
+
+// Saves the phone number on the new profile (best effort: a failure here
+// should not stop the registration).
+async function savePhone(profileId, requesterId, phone) {
+  try {
+    await fetch(`${API_URL}/api/alumni/${profileId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ requester_id: requesterId, phone }),
+    });
+  } catch {
+    // ignore
+  }
 }
 
 function App() {
@@ -120,15 +136,28 @@ function App() {
     setIsSubmitting(true);
 
     try {
-      await registerUser({
+      const created = await registerUser({
         email: formData.email.trim(),
         password: formData.password,
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),
+        college: formData.collegeDepartment,
       });
 
-      alert('Registration successful! You can now log in.');
-      navigate('/login');
+      await savePhone(created.profile_id, created.id, `${countryCode}${formData.phone}`);
+
+      // The next step (certificate upload) needs to know who just registered.
+      // sessionStorage is used on purpose so this is NOT treated as a login.
+      try {
+        sessionStorage.setItem(
+          'wmsu_register',
+          JSON.stringify({ id: created.id, profile_id: created.profile_id, email: created.email })
+        );
+      } catch {
+        // storage unavailable; the next page will ask the user to start over
+      }
+
+      navigate('/phase2register');
     } catch (err) {
       alert(err.message || 'Registration failed.');
     } finally {
@@ -282,6 +311,7 @@ function App() {
                 onChange={handleChange}
                 required
               >
+                <option value="">Select your college</option>
                 {COLLEGE_DEPARTMENTS.map((dept) => (
                   <option key={dept} value={dept}>
                     {dept}
@@ -351,7 +381,7 @@ function App() {
             </label>
           </div>
 
-          <button type="submit" onClick={() => navigate('/phase2register')}>
+          <button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Registering...' : 'Proceed'}
           </button>
         </form>
