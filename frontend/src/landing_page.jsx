@@ -4,6 +4,7 @@ import events from './assets/events.png';
 // import merch from './assets/merch.png';
 import banner from './assets/wmsu_school_picture.jpg';
 import logo from './assets/wmsu-logo.png';
+import star from './assets/star.png';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,12 +50,17 @@ export default function App() {
 
 <div className="card spotlight">
   <div className="card_icon">
-    <span role="img" aria-label="star" style={{ fontSize: '2rem' }}>⭐</span>
+    <img src={star} alt="Star" />
   </div>
-  <h3>Spotlight</h3>
+  <h3>Alumni Spotlight</h3>
   <p>Another WMSU alumni has achieved great success.
     <br />
-  Mr. John Doe graduate from the College of Computing Studies has been recognized for his outstanding contributions to the field of computer science.</p>
+    <b>Dr. Maria Santos • BS Biology (Class of 2012)</b>
+    <br />
+  “The hands-on field biology expeditions led by our WMSU professors instilled in me a deep respect for our local waters and biodiversity.”
+    <br />
+  Recipient of the 2026 ASEAN Science and Climate Innovation Fellowship for marine ecosystem conservation in Zamboanga Peninsula.
+  </p>
 </div>
 
           <button

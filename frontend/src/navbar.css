@@ -134,15 +134,15 @@
   padding: 0;
 
   border: none;
-  border-radius: 50%;
-  background-color: #e53935;
+  border-radius: 8px;
+  background-color: transparent;
 
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
 
 .navbar_menu_button:hover {
-  background-color: #c93b33;
+  background-color: #fff1f0;
 }
 
 .navbar_menu_button:focus-visible {
@@ -150,13 +150,19 @@
   outline-offset: 3px;
 }
 
+/* Hide the PNG icon and draw three red lines instead */
 .navbar_menu_button img {
+  display: none;
+}
+
+.navbar_menu_button::before {
+  content: '';
   display: block;
-  width: 20px;
-  height: 20px;
-  max-width: 20px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
+  width: 24px;
+  height: 2.5px;
+  border-radius: 2px;
+  background-color: #c93b33;
+  box-shadow: 0 -6px 0 #c93b33, 0 6px 0 #c93b33;
 }
 
 /* ========================================
