@@ -51,6 +51,7 @@ export default function AdminDashboard() {
 
         <nav className="adm_tabs">
           <Link to="/admin" className="adm_tab active">Dashboard</Link>
+          <Link to="/admin/content" className="adm_tab">Content Management</Link>
           <Link to="/admin/verification" className="adm_tab">Verification</Link>
         </nav>
 

@@ -17,6 +17,8 @@ import Phase3Register from './phase3register.jsx';
 import RequireAdmin from './admin/Requireadmin.jsx';
 import AdminDashboard from './admin/Admindashboard.jsx';
 import AdminVerification from './admin/Adminverification.jsx';
+import AdminContentManagement from './admin/AdminContentManagement.jsx';
+import AlumniSurveyPage from './AlumniSurveyPage.jsx';
 
 import './index.css';
 
@@ -44,6 +46,14 @@ createRoot(document.getElementById('root')).render(
           }
         />
         <Route
+          path="/admin/content"
+          element={
+            <RequireAdmin>
+              <AdminContentManagement />
+            </RequireAdmin>
+          }
+        />
+        <Route
           path="/admin/verification"
           element={
             <RequireAdmin>
@@ -56,6 +66,8 @@ createRoot(document.getElementById('root')).render(
         <Route path="/NewsAndUpdates_page" element={<News />} />
         <Route path="/news" element={<News />} />
         <Route path="/newsandupdates" element={<News />} />
+        <Route path="/survey" element={<AlumniSurveyPage />} />
+        <Route path="/census" element={<AlumniSurveyPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

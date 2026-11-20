@@ -4,6 +4,7 @@ import "./HomePage.css";
 import logo from "./assets/wmsu-logo.png";
 import banner from "./assets/wmsu_school_picture.jpg";
 import { apiRequest } from "./api";
+import { getStoredPosts, getStoredEvents } from "./contentStore.js";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -68,8 +69,36 @@ export default function HomePage() {
         }));
         setLoadError(null);
       })
-      .catch((err) => {
-        if (!cancelled) setLoadError(err.message || "Could not load portal data.");
+      .catch(() => {
+        if (!cancelled) {
+          // Graceful fallback to frontend stored demonstration data
+          const posts = getStoredPosts();
+          const events = getStoredEvents();
+          setNewsList(
+            posts.slice(0, 3).map((post) => ({
+              ...post,
+              category: post.category || "WMSU News",
+              date: post.published_at ? new Date(post.published_at).toLocaleDateString() : "Recent",
+              description: post.content || post.description,
+              author: post.author || "WMSU Alumni Affairs",
+            }))
+          );
+          setEventList(
+            events.slice(0, 3).map((event) => {
+              const date = new Date(event.event_date);
+              return {
+                ...event,
+                category: event.category || "Alumni Event",
+                month: !isNaN(date.getTime())
+                  ? date.toLocaleString(undefined, { month: "short" }).toUpperCase()
+                  : "DEC",
+                day: !isNaN(date.getTime()) ? String(date.getDate()).padStart(2, "0") : "18",
+                time: event.start_time ? `${event.start_time}` : "08:00 AM",
+              };
+            })
+          );
+          setLoadError(null);
+        }
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -143,6 +172,13 @@ export default function HomePage() {
               onClick={() => navigate("/profile")}
             >
               View My Profile &rarr;
+            </button>
+            <button
+              type="button"
+              className="shortcut_btn shortcut_outline"
+              onClick={() => navigate("/survey")}
+            >
+              Alumni Census &rarr;
             </button>
           </div>
         </div>

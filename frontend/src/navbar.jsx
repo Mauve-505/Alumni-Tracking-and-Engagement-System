@@ -9,12 +9,14 @@ const UNAUTHENTICATED_LINKS = [
   { label: 'Home', href: '/' },
   { label: 'News & Updates', href: '/NewsAndUpdates_page' },
   { label: 'Events', href: '/Eventlist_page' },
+  { label: 'Alumni Census', href: '/survey' },
   { label: 'Login / Sign Up', href: '/login' },
 ];
 
 // Extra links shown only to administrators
 const ADMIN_LINKS = [
   { label: 'Admin Dashboard', href: '/admin' },
+  { label: 'Content Management', href: '/admin/content' },
   { label: 'Verification', href: '/admin/verification' },
 ];
 
@@ -24,6 +26,7 @@ const AUTHENTICATED_LINKS = [
   { label: 'News & Updates', href: '/NewsAndUpdates_page' },
   { label: 'Events', href: '/Eventlist_page' },
   { label: 'Directory', href: '/directory' },
+  { label: 'Alumni Census', href: '/survey' },
   { label: 'Profile', href: '/profile' },
 ];
 
@@ -38,19 +41,21 @@ export function Navbar() {
 
   // Determine if the current view should show authenticated navigation
   const isAuthenticated =
-    ['/home', '/profile', '/directory', '/admin', '/admin/verification'].includes(location.pathname) ||
+    ['/home', '/profile', '/directory', '/admin', '/admin/content', '/admin/verification'].includes(location.pathname) ||
     Boolean(
       typeof window !== 'undefined' &&
         localStorage.getItem('wmsu_user') &&
         !['/login', '/register', '/'].includes(location.pathname)
     );
 
-  let isAdmin = false;
-  try {
-    isAdmin = JSON.parse(localStorage.getItem('wmsu_user'))?.role === 'admin';
-  } catch {
-    isAdmin = false;
-  }
+  const isAdmin = (() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem('wmsu_user'));
+      return parsed?.role === 'admin' || localStorage.getItem('wmsu_demo_admin') === 'true';
+    } catch {
+      return false;
+    }
+  })();
 
   const activeLinks = isAuthenticated
     ? [...AUTHENTICATED_LINKS, ...(isAdmin ? ADMIN_LINKS : [])]
@@ -63,6 +68,7 @@ export function Navbar() {
     try {
       localStorage.removeItem('wmsu_user');
       localStorage.removeItem('wmsu_role');
+      localStorage.removeItem('wmsu_demo_admin');
     } catch {
       // Storage unavailable; ignore
     }
